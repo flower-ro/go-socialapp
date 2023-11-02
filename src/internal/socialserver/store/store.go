@@ -2,7 +2,7 @@ package store
 
 import transcationalDB "go-socialapp/pkg/db"
 
-var client Factory
+var store Factory
 
 // Factory defines the tg task server platform storage interface.
 type Factory interface {
@@ -13,11 +13,11 @@ type Factory interface {
 }
 
 // Client return the store client instance.
-func Client() Factory {
-	return client
+func Store() Factory {
+	return store
 }
 
 // SetClient set the iam store client.
 func SetClient(factory Factory) {
-	client = factory
+	store = factory
 }

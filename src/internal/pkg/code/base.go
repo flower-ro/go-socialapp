@@ -113,15 +113,8 @@ const (
 	// ErrCacheGet - 500: get cache error.
 	ErrCacheGet
 
-	// ErrConfigNull - 500: config can not be null.
-	ErrConfigNull
-
 	// ErrData - 500: Data err.
 	ErrData
 	// ErrRecordNotExisted - 500: Record not existed.
 	ErrRecordNotExisted
-	// ErrAbiUnpackIntoInterface - 500: Abi parse log fail.
-	ErrAbiUnpackIntoInterface
-	// ErrHandlerLogs - 500: handler logs err.
-	ErrHandlerLogs
 )

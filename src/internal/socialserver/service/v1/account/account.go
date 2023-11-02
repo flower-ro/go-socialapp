@@ -1,12 +1,12 @@
 package account
 
 import (
-	"github.com/marmotedu/errors"
-	v1 "go-socialapp/internal/socialserver/model/v1"
-	transcationalDB "go-socialapp/pkg/db"
-
 	"context"
+	"github.com/marmotedu/errors"
+	whatsappClient "go-socialapp/internal/socialserver/client/whatsapp"
+	v1 "go-socialapp/internal/socialserver/model/v1"
 	"go-socialapp/internal/socialserver/store"
+	transcationalDB "go-socialapp/pkg/db"
 )
 
 type AccountSrv interface {
@@ -15,20 +15,22 @@ type AccountSrv interface {
 
 type accountService struct {
 	transcationalDB.TxGenerate
-	store store.Factory
+	store    store.Factory
+	waClient whatsappClient.Factory
 }
 
 var _ AccountSrv = (*accountService)(nil)
 
 var accountSrv *accountService
 
-func GetAccount(store store.Factory) *accountService {
+func GetAccount(store store.Factory, waClient whatsappClient.Factory) *accountService {
 	if accountSrv != nil {
 		return accountSrv
 	}
 	accountSrv = &accountService{
 		TxGenerate: store.GetTxGenerate(),
-		store:      store}
+		store:      store,
+		waClient:   waClient}
 	return accountSrv
 }
 
