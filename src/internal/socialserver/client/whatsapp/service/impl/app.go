@@ -49,7 +49,7 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 	service.waCli.Disconnect()
 
 	//chImage := make(chan string)
-
+	log.Info("开始获取二维码。。。。")
 	ch, err := service.waCli.GetQRChannel(context.Background())
 	if err != nil {
 		log.Error(err.Error())
@@ -67,6 +67,7 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 		var i int
 		for evt := range ch {
 			spew.Dump("---", i, "-----", evt)
+			i++
 			if evt.Event == "code" {
 				response.Code = evt.Code
 				response.Duration = evt.Timeout / time.Second / 2
