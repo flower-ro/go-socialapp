@@ -1,0 +1,4 @@
+#查看
+docker system df
+#删除
+docker system prune
