@@ -25,7 +25,7 @@ ENV SOCIALSERVER_DB_HOST=10.0.3.10\
     SOCIALSERVER_DB_DATABASE=tgtask\
     SOCIALSERVER_INSECURE_BIND_ADDRESS=0.0.0.0 \
     SOCIALSERVER_SECURE_BIND_ADDRESS=0.0.0.0 \
-    SOCIALSERVER_INSECURE_BIND_PORT=8085 \
+    SOCIALSERVER_INSECURE_BIND_PORT=8808 \
     SOCIALSERVER_SECURE_BIND_PORT=8543
     
 RUN apk update && apk add --no-cache vips-dev ffmpeg
@@ -36,7 +36,6 @@ COPY --from=builder /socialapp/configs /app/configs
 COPY --from=builder /socialapp/storages /app/storages
 # Run the binary.
 
-EXPOSE 8085
-EXPOSE 8543
+EXPOSE 8808
 
 ENTRYPOINT ["/app/socialapp"]
