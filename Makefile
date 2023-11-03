@@ -22,6 +22,13 @@ start: build
 # 	cd $(current_dir)/scripts && source ./environment.sh && $(current_dir)/src/cmd/socialserver/socialserver -c $(current_dir)/src/configs/socialserver.yaml &
 	#echo ".env===="${TASKSERVER_DB_HOST}
 
+start-container:image
+	$(current_dir)/build/remove-container.sh $(version)
+	#docker run  -p 8808:8808 -p 9808:9808  -e "PGSQL_PORT=5432" --name syncserver-$(version) -d fancyflink/syncserver:$(version)
+	docker run  --name socialserver-$(version) -d rrs/socialserver:$(version)
+	docker ps -all
+	docker logs -f --tail=100 socialserver-$(version)
+#	docker logs  socialserver-$(version)
 
 restart:
 	$(current_dir)/build/restart-container.sh $(version)
