@@ -11,6 +11,8 @@ import (
 
 type AccountSrv interface {
 	CreateBatch(ctx context.Context, accounts []v1.Account) error
+	Login() (string, error)
+	Logout(phone string) error
 }
 
 type accountService struct {
@@ -42,4 +44,17 @@ func (a *accountService) CreateBatch(ctx context.Context, accounts []v1.Account)
 		}
 		return nil
 	})
+}
+
+func (a *accountService) Login() (string, error) {
+
+	res, err := a.waClient.App().Login(context.Background())
+	if err != nil {
+		return "", err
+	}
+	return res.Code, err
+}
+
+func (a *accountService) Logout(phone string) error {
+	return nil
 }

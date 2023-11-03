@@ -3,11 +3,10 @@ package services
 import (
 	"context"
 	"fmt"
-	fiberUtils "github.com/gofiber/fiber/v2/utils"
 	"github.com/marmotedu/errors"
 	"github.com/marmotedu/iam/pkg/log"
-	"github.com/sirupsen/logrus"
-	"github.com/skip2/go-qrcode"
+	"time"
+
 	"go-socialapp/internal/pkg/code"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
@@ -16,7 +15,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 type serviceApp struct {
@@ -49,7 +47,7 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 	// Disconnect for reconnecting
 	service.waCli.Disconnect()
 
-	chImage := make(chan string)
+	//chImage := make(chan string)
 
 	ch, err := service.waCli.GetQRChannel(context.Background())
 	if err != nil {
@@ -67,24 +65,27 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 	} else {
 		go func() {
 			for evt := range ch {
-				response.Code = evt.Code
-				response.Duration = evt.Timeout / time.Second / 2
+
 				if evt.Event == "code" {
-					qrPath := fmt.Sprintf("%s/scan-qr-%s.png", whatsapp.PathQrCode, fiberUtils.UUIDv4())
-					err = qrcode.WriteFile(evt.Code, qrcode.Medium, 512, qrPath)
-					if err != nil {
-						log.Errorf("Error when write qr code to file: %v", err)
-					}
-					go func() {
-						time.Sleep(response.Duration * time.Second)
-						err := os.Remove(qrPath)
-						if err != nil {
-							logrus.Error("error when remove qrImage file", err.Error())
-						}
-					}()
-					chImage <- qrPath
+					response.Code = evt.Code
+					response.Duration = evt.Timeout / time.Second / 2
+
+					//qrPath := fmt.Sprintf("%s/scan-qr-%s.png", whatsapp.PathQrCode, fiberUtils.UUIDv4())
+					//err = qrcode.WriteFile(evt.Code, qrcode.Medium, 512, qrPath)
+					//
+					//if err != nil {
+					//	log.Errorf("Error when write qr code to file: %v", err)
+					//}
+					//go func() {
+					//	time.Sleep(response.Duration * time.Second)
+					//	err := os.Remove(qrPath)
+					//	if err != nil {
+					//		log.Errorf("error when remove qrImage file err: %s", err.Error())
+					//	}
+					//}()
+					//chImage <- qrPath
 				} else {
-					logrus.Error("error when get qrCode", evt.Event)
+					log.Errorf("error when get qrCode for event %v", evt.Event)
 				}
 			}
 		}()
@@ -95,7 +96,7 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 		log.Errorf("Error when connect to whatsapp :", err.Error())
 		return response, errors.WithCode(code.ErrReconnect, "")
 	}
-	response.ImagePath = <-chImage
+	//response.ImagePath = <-chImage
 
 	return response, nil
 }

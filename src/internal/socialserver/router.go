@@ -40,7 +40,8 @@ func routeGroup(group *gin.RouterGroup) {
 		accountController := account.NewAccountController()
 
 		accountRoute.POST("", middleware.DealHanlder(accountController.Create))
-		//accountRoute.GET(":chainId", middleware.DealHanlder(accountController.GetLasted)) // admin api
+		accountRoute.GET("/login", middleware.DealHanlder(accountController.Login))
+		accountRoute.POST("/logout/:phone", middleware.DealHanlder(accountController.Login)) // admin api
 	}
 
 }

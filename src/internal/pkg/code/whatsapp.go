@@ -41,4 +41,10 @@ const (
 	FailedCompressVideo
 	// FailedUploadFile - 500: Failed to upload file.
 	FailedUploadFile
+	// FailedGetDevice - 500: Failed to get device.
+	FailedGetDevice
+	// FailedConnectSqlite3 - 500: Failed to connect to sqlite3 database.
+	FailedConnectSqlite3
+	// WaClientExistedInCache - 500: existed whatsapp waClient in cache.
+	WaClientExistedInCache
 )

@@ -62,4 +62,7 @@ func init() {
 	register(FailedCreateImageThumbnail, 500, "failed to create image thumbnail.")
 	register(FailedCompressVideo, 500, "failed to compress video.")
 	register(FailedUploadFile, 500, "Failed to upload file.")
+	register(FailedGetDevice, 500, "Failed to get device.")
+	register(FailedConnectSqlite3, 500, " Failed to connect to sqlite3 database.")
+	register(WaClientExistedInCache, 500, " existed whatsapp waClient in cache.")
 }

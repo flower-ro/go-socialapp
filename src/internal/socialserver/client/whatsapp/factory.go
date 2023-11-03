@@ -1,8 +1,6 @@
 package whatsapp
 
-import (
-	"go-socialapp/internal/socialserver/client/whatsapp/service"
-)
+import "go-socialapp/internal/socialserver/client/whatsapp/service"
 
 var client Factory
 

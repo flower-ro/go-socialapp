@@ -4,8 +4,7 @@ import (
 	"github.com/marmotedu/iam/pkg/log"
 	genericoptions "go-socialapp/internal/pkg/options"
 	whatsapp "go-socialapp/internal/pkg/third-party/whatsapp"
-
-	whatsappClient "go-socialapp/internal/socialserver/client/whatsapp"
+	whatsapp2 "go-socialapp/internal/socialserver/client/whatsapp"
 	whatsappService "go-socialapp/internal/socialserver/client/whatsapp/service"
 	"go-socialapp/internal/socialserver/config"
 	"go-socialapp/internal/socialserver/store"
@@ -54,7 +53,7 @@ type preparedTaskServer struct {
 
 func (s *socialServer) PrepareRun() preparedTaskServer {
 	initRouter(s.genericAPIServer.Engine)
-	s.initDB()
+	//s.initDB()
 	s.initThirdClient()
 
 	//	s.initRedisStore()
@@ -83,9 +82,15 @@ func (s preparedTaskServer) Run() error {
 }
 
 func (s *socialServer) initThirdClient() {
-	db := whatsapp.InitWaDB()
-	cli := whatsapp.InitWaCLI(db)
-	whatsappClient.SetClient(whatsappService.NewThirdClient(cli, db))
+	db, err := whatsapp.InitWaDB()
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	cli, err := whatsapp.InitWaCLI(db)
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	whatsapp2.SetClient(whatsappService.NewThirdClient(cli, db))
 }
 
 func (s *socialServer) initDB() {
