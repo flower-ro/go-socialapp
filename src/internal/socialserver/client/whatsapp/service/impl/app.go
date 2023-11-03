@@ -6,8 +6,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
 	"github.com/marmotedu/iam/pkg/log"
-	"time"
-
+	"github.com/sirupsen/logrus"
 	"go-socialapp/internal/pkg/code"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
@@ -16,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type serviceApp struct {
@@ -49,7 +49,7 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 	service.waCli.Disconnect()
 
 	//chImage := make(chan string)
-	log.Info("开始获取二维码。。。。")
+
 	ch, err := service.waCli.GetQRChannel(context.Background())
 	if err != nil {
 		log.Error(err.Error())
@@ -64,17 +64,19 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 			return response, errors.WithCode(code.ErrQrChannel, err.Error())
 		}
 	} else {
-		var i int
-		for evt := range ch {
-			spew.Dump("---", i, "-----", evt)
-			i++
-			if evt.Event == "code" {
+		go func() {
+			log.Info("开始获取二维码。。。。")
+			for evt := range ch {
+				spew.Dump(evt)
 				response.Code = evt.Code
 				response.Duration = evt.Timeout / time.Second / 2
-			} else {
-				log.Errorf("error when get qrCode for event %v", evt.Event)
+				if evt.Event == "code" {
+
+				} else {
+					logrus.Error("error when get qrCode", evt.Event)
+				}
 			}
-		}
+		}()
 	}
 
 	err = service.waCli.Connect()
