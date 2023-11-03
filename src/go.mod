@@ -11,11 +11,9 @@ require (
 	github.com/gin-contrib/pprof v1.3.0
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
-	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/google/uuid v1.3.1
 	github.com/gostool/jsonconv v0.0.1
 	github.com/gosuri/uitable v0.0.4
-
 	github.com/markbates/pkger v0.17.1
 	github.com/marmotedu/api v1.6.3
 	github.com/marmotedu/component-base v1.6.2
@@ -26,8 +24,7 @@ require (
 	github.com/rookie-ninja/rk-boot v1.4.8
 	github.com/rookie-ninja/rk-boot/gf v0.0.15
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
-	github.com/sirupsen/logrus v1.8.1
-	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/sony/sonyflake v1.0.0
 	github.com/speps/go-hashids v2.0.0+incompatible
 	github.com/spf13/cobra v1.2.1
@@ -44,6 +41,8 @@ require (
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
 )
+
+require github.com/mattn/go-sqlite3 v1.14.17
 
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect

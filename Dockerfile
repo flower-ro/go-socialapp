@@ -18,7 +18,12 @@ RUN cd cmd/socialserver && go mod download && go mod tidy -v && pkger && go buil
 #############################
 FROM alpine:latest
 
-ENV SOCIALSERVER_INSECURE_BIND_ADDRESS=0.0.0.0 \
+ENV SOCIALSERVER_DB_HOST=10.0.3.10\
+    SOCIALSERVER_DB_PORT=5432\
+    SOCIALSERVER_DB_USERNAME=tgtask\
+    SOCIALSERVER_DB_PASSWORD=yuer@245\
+    SOCIALSERVER_DB_DATABASE=tgtask\
+    SOCIALSERVER_INSECURE_BIND_ADDRESS=0.0.0.0 \
     SOCIALSERVER_SECURE_BIND_ADDRESS=0.0.0.0 \
     SOCIALSERVER_INSECURE_BIND_PORT=8085 \
     SOCIALSERVER_SECURE_BIND_PORT=8543
@@ -28,5 +33,6 @@ WORKDIR /app
 # Copy compiled from builder.
 COPY --from=builder /app/socialapp /app/socialapp
 COPY --from=builder /socialapp/configs /app/configs
+COPY --from=builder /socialapp/storages /app/storages
 # Run the binary.
 ENTRYPOINT ["/app/socialapp"]

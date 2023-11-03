@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/marmotedu/errors"
 	"github.com/marmotedu/iam/pkg/log"
+	_ "github.com/mattn/go-sqlite3"
 	"go-socialapp/internal/pkg/code"
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/store"
@@ -22,6 +23,7 @@ func InitWaDB() (*sqlstore.Container, error) {
 	storeContainer, err := sqlstore.New("sqlite3",
 		fmt.Sprintf("file:%s/%s?_foreign_keys=off", PathStorages, DBName), nil)
 	if err != nil {
+		log.Errorf(err.Error())
 		return nil, errors.WithCode(code.FailedConnectSqlite3, err.Error())
 	}
 	return storeContainer, nil

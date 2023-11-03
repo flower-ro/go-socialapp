@@ -52,9 +52,9 @@ type preparedTaskServer struct {
 }
 
 func (s *socialServer) PrepareRun() preparedTaskServer {
-	initRouter(s.genericAPIServer.Engine)
-	//s.initDB()
+	s.initDB()
 	s.initThirdClient()
+	initRouter(s.genericAPIServer.Engine)
 
 	//	s.initRedisStore()
 	//设置监听到指定信号时，需要执行的回调函数。这些回调函数可以执行一些清理工作。
@@ -84,11 +84,11 @@ func (s preparedTaskServer) Run() error {
 func (s *socialServer) initThirdClient() {
 	db, err := whatsapp.InitWaDB()
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%+v", err)
 	}
 	cli, err := whatsapp.InitWaCLI(db)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%+v", err)
 	}
 	whatsapp2.SetClient(whatsappService.NewThirdClient(cli, db))
 }

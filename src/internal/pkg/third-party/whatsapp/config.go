@@ -6,6 +6,7 @@ import (
 )
 
 var (
+	//PathStorages = "E:/software/sqlite3/db"
 	PathStorages = "storages"
 	DBName       = "whatsapp.db"
 
