@@ -25,6 +25,7 @@ image:
 	 docker build -t rrs/socialserver:$(version) .
 
 start-container:image
+	sudo chmod +777 $(current_dir)/build/remove-container.sh
 	$(current_dir)/build/remove-container.sh $(version)
 	#docker run  -p 8808:8808 -p 9808:9808  -e "PGSQL_PORT=5432" --name syncserver-$(version) -d fancyflink/syncserver:$(version)
 	docker run  --name socialserver-$(version) -d rrs/socialserver:$(version)
