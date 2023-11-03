@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
 	"github.com/marmotedu/iam/pkg/log"
 	"time"
@@ -65,10 +66,12 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 	} else {
 		go func() {
 			for evt := range ch {
-
+				spew.Dump("---0", evt)
 				if evt.Event == "code" {
 					response.Code = evt.Code
 					response.Duration = evt.Timeout / time.Second / 2
+
+					spew.Dump("---1", evt)
 
 					//qrPath := fmt.Sprintf("%s/scan-qr-%s.png", whatsapp.PathQrCode, fiberUtils.UUIDv4())
 					//err = qrcode.WriteFile(evt.Code, qrcode.Medium, 512, qrPath)
@@ -93,8 +96,7 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 
 	err = service.waCli.Connect()
 	if err != nil {
-		log.Errorf("Error when connect to whatsapp :", err.Error())
-		return response, errors.WithCode(code.ErrReconnect, "")
+		return response, errors.WithCode(code.ErrReconnect, err.Error())
 	}
 	//response.ImagePath = <-chImage
 
