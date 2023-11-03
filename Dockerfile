@@ -35,4 +35,8 @@ COPY --from=builder /app/socialapp /app/socialapp
 COPY --from=builder /socialapp/configs /app/configs
 COPY --from=builder /socialapp/storages /app/storages
 # Run the binary.
+
+EXPOSE 8085
+EXPOSE 8543
+
 ENTRYPOINT ["/app/socialapp"]
