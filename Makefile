@@ -21,6 +21,8 @@ start: build
 	#后台运行
 # 	cd $(current_dir)/scripts && source ./environment.sh && $(current_dir)/src/cmd/socialserver/socialserver -c $(current_dir)/src/configs/socialserver.yaml &
 	#echo ".env===="${TASKSERVER_DB_HOST}
+image:
+	 docker build -t rrs/socialserver:$(version) .
 
 start-container:image
 	$(current_dir)/build/remove-container.sh $(version)
