@@ -49,7 +49,7 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 	service.waCli.Disconnect()
 
 	//chImage := make(chan string)
-
+	log.Info("start get qrCode")
 	ch, err := service.waCli.GetQRChannel(context.Background())
 	if err != nil {
 		log.Error(err.Error())
