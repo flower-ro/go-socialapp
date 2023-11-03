@@ -64,34 +64,34 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 			return response, errors.WithCode(code.ErrQrChannel, "")
 		}
 	} else {
-		go func() {
-			for evt := range ch {
-				spew.Dump("---0", evt)
-				if evt.Event == "code" {
-					response.Code = evt.Code
-					response.Duration = evt.Timeout / time.Second / 2
+		//go func() {
+		for evt := range ch {
+			spew.Dump("---0", evt)
+			if evt.Event == "code" {
+				response.Code = evt.Code
+				response.Duration = evt.Timeout / time.Second / 2
 
-					spew.Dump("---1", evt)
+				spew.Dump("---1", evt)
 
-					//qrPath := fmt.Sprintf("%s/scan-qr-%s.png", whatsapp.PathQrCode, fiberUtils.UUIDv4())
-					//err = qrcode.WriteFile(evt.Code, qrcode.Medium, 512, qrPath)
-					//
-					//if err != nil {
-					//	log.Errorf("Error when write qr code to file: %v", err)
-					//}
-					//go func() {
-					//	time.Sleep(response.Duration * time.Second)
-					//	err := os.Remove(qrPath)
-					//	if err != nil {
-					//		log.Errorf("error when remove qrImage file err: %s", err.Error())
-					//	}
-					//}()
-					//chImage <- qrPath
-				} else {
-					log.Errorf("error when get qrCode for event %v", evt.Event)
-				}
+				//qrPath := fmt.Sprintf("%s/scan-qr-%s.png", whatsapp.PathQrCode, fiberUtils.UUIDv4())
+				//err = qrcode.WriteFile(evt.Code, qrcode.Medium, 512, qrPath)
+				//
+				//if err != nil {
+				//	log.Errorf("Error when write qr code to file: %v", err)
+				//}
+				//go func() {
+				//	time.Sleep(response.Duration * time.Second)
+				//	err := os.Remove(qrPath)
+				//	if err != nil {
+				//		log.Errorf("error when remove qrImage file err: %s", err.Error())
+				//	}
+				//}()
+				//chImage <- qrPath
+			} else {
+				log.Errorf("error when get qrCode for event %v", evt.Event)
 			}
-		}()
+		}
+		//}()
 	}
 
 	err = service.waCli.Connect()
