@@ -32,6 +32,7 @@ start-container:image
 	docker ps -all
 	docker logs -f --tail=100 socialserver-$(version)
 #	docker logs  socialserver-$(version)
+#   docker exec -it 6dfb762e67dc /bin/sh
 
 restart:
 	$(current_dir)/build/restart-container.sh $(version)
