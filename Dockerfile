@@ -27,5 +27,6 @@ RUN apk update && apk add --no-cache vips-dev ffmpeg
 WORKDIR /app
 # Copy compiled from builder.
 COPY --from=builder /app/socialapp /app/socialapp
+COPY --from=builder /socialapp/src/configs /app/configs
 # Run the binary.
 ENTRYPOINT ["/app/socialapp"]
