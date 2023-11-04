@@ -56,7 +56,7 @@ func (s *socialServer) PrepareRun() preparedTaskServer {
 	s.initDB()
 	s.initThirdClient()
 	initRouter(s.genericAPIServer.Engine)
-	ws.Manager.Start()
+	go ws.Manager.Start()
 
 	//	s.initRedisStore()
 	//设置监听到指定信号时，需要执行的回调函数。这些回调函数可以执行一些清理工作。

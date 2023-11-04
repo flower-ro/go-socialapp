@@ -28,9 +28,12 @@ func installController(g *gin.Engine) *gin.Engine {
 	g.NoRoute(func(c *gin.Context) {
 		core.WriteResponse(c, errors.WithCode(code.ErrPageNotFound, "Page not found."), nil)
 	})
-	g.GET("/ws", wsHandler)
-	v1 := g.Group("/api/v1")
-	routeGroup(v1)
+	v1 := g.Group("/")
+	{
+		v2 := v1.Group("api/v1")
+		routeGroup(v2)
+		v1.GET("ws", wsHandler)
+	}
 
 	return g
 }
