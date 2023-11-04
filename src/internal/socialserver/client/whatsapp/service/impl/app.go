@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
 	"github.com/marmotedu/iam/pkg/log"
 	"github.com/sirupsen/logrus"
@@ -40,6 +39,35 @@ func newAppService(waCli *whatsmeow.Client, db *sqlstore.Container) *serviceApp 
 	}
 }
 
+func (service serviceApp) GetQrCode(ctx context.Context) (<-chan whatsmeow.QRChannelItem, error) {
+	if service.waCli == nil {
+		return nil, errors.WithCode(code.ErrWaCLI, "")
+	}
+	service.waCli.Disconnect()
+
+	ch, err := service.waCli.GetQRChannel(context.Background())
+	if err != nil {
+		log.Error(err.Error())
+		// This error means that we're already logged in, so ignore it.
+		if errors.Is(err, whatsmeow.ErrQRStoreContainsID) {
+			_ = service.waCli.Connect() // just connect to websocket
+			if service.waCli.IsLoggedIn() {
+				return nil, errors.WithCode(code.ErrAlreadyLoggedIn, err.Error())
+			}
+			return nil, errors.WithCode(code.ErrSessionSaved, err.Error())
+		} else {
+			return nil, errors.WithCode(code.ErrQrChannel, err.Error())
+		}
+	}
+
+	err = service.waCli.Connect()
+	if err != nil {
+		return nil, errors.WithCode(code.ErrReconnect, err.Error())
+	}
+
+	return ch, nil
+}
+
 func (service serviceApp) Login(_ context.Context) (response model.LoginResponse, err error) {
 	if service.waCli == nil {
 		return response, errors.WithCode(code.ErrWaCLI, "")
@@ -65,13 +93,10 @@ func (service serviceApp) Login(_ context.Context) (response model.LoginResponse
 		}
 	} else {
 		go func() {
-			log.Info("开始获取二维码。。。。")
 			for evt := range ch {
-				spew.Dump(evt)
-				response.Code = evt.Code
-				response.Duration = evt.Timeout / time.Second / 2
 				if evt.Event == "code" {
-
+					response.Code = evt.Code
+					response.Duration = evt.Timeout / time.Second / 2
 				} else {
 					logrus.Error("error when get qrCode", evt.Event)
 				}

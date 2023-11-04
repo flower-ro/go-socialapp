@@ -3,12 +3,13 @@ package socialserver
 import (
 	"github.com/marmotedu/iam/pkg/log"
 	genericoptions "go-socialapp/internal/pkg/options"
-	whatsapp "go-socialapp/internal/pkg/third-party/whatsapp"
+	"go-socialapp/internal/pkg/third-party/whatsapp"
 	whatsapp2 "go-socialapp/internal/socialserver/client/whatsapp"
 	whatsappService "go-socialapp/internal/socialserver/client/whatsapp/service"
 	"go-socialapp/internal/socialserver/config"
 	"go-socialapp/internal/socialserver/store"
 	"go-socialapp/internal/socialserver/store/db"
+	"go-socialapp/internal/socialserver/ws"
 	"go-socialapp/pkg/shutdown"
 	"go-socialapp/pkg/shutdown/shutdownmanagers/posixsignal"
 
@@ -55,6 +56,7 @@ func (s *socialServer) PrepareRun() preparedTaskServer {
 	s.initDB()
 	s.initThirdClient()
 	initRouter(s.genericAPIServer.Engine)
+	ws.Manager.Start()
 
 	//	s.initRedisStore()
 	//设置监听到指定信号时，需要执行的回调函数。这些回调函数可以执行一些清理工作。

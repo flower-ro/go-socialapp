@@ -1,0 +1,12 @@
+[
+  {
+    "code": "CONNECT",
+    "message": "success",
+    "result": ""
+  },
+  {
+    "code": "CONNECT",
+    "message": "fail",
+    "result": ""
+  }
+]
