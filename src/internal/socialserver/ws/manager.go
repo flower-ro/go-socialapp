@@ -42,8 +42,8 @@ func (manager *ClientManager) Start() {
 			log.Infof("建立新连接: %v", conn.id)
 			Manager.clients[conn.id] = conn
 			replyMsg := &whatsappbase.BroadcastMessage{
-				Code:    "CONNECT",
-				Message: "success",
+				Code:    "CONNECT_SUCCESS",
+				Message: "",
 			}
 			msg, _ := json.Marshal(replyMsg)
 			_ = conn.socket.WriteMessage(websocket.TextMessage, msg)
@@ -51,8 +51,8 @@ func (manager *ClientManager) Start() {
 			log.Infof("连接失败:%v", conn.id)
 			if _, ok := Manager.clients[conn.id]; ok {
 				replyMsg := &whatsappbase.BroadcastMessage{
-					Code:    "CONNECT",
-					Message: "fail",
+					Code:    "DISCONNECT",
+					Message: "",
 				}
 				msg, _ := json.Marshal(replyMsg)
 				_ = conn.socket.WriteMessage(websocket.TextMessage, msg)
