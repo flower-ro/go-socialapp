@@ -3,9 +3,9 @@ package ws
 import (
 	"context"
 	"encoding/json"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/websocket"
 	"github.com/marmotedu/iam/pkg/log"
-	"github.com/sirupsen/logrus"
 	whatsappbase "go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/client/whatsapp"
 )
@@ -64,32 +64,33 @@ func (c *Client) Read() {
 					log.Errorf("FETCH_DEVICES err: %s", err.Error())
 				}
 				bmsg := whatsappbase.BroadcastMessage{
-					Code:    "LIST_DEVICES",
-					Message: "Device found",
-					Result:  devices,
+					Code:   "LIST_DEVICES",
+					Result: devices,
 				}
 				Manager.broadcastMsg(bmsg)
 			}
 
 			if messageData.Code == "QRCODE" {
+				log.Infof("收到请求 qrcode")
 				ch, err := c.waService.App().GetQrCode(context.Background())
 				if err != nil {
 					log.Errorf("QRCODE err: %s", err.Error())
 					return
 				}
 				go func() {
+					log.Infof("遍历获取到的 qrcode")
 					for evt := range ch {
+						spew.Dump(evt)
 						if evt.Event == "code" {
 							replyMsg := whatsappbase.BroadcastMessage{
-								Code:    "QRCODE",
-								Message: "QRCODE found",
-								Result:  evt.Code,
+								Code:   "QRCODE",
+								Result: evt.Code,
 							}
 							msg, _ := json.Marshal(replyMsg)
 							_ = c.socket.WriteMessage(websocket.TextMessage, msg)
 
 						} else {
-							logrus.Error("error when get qrCode", evt.Event)
+							log.Errorf("error when get qrCode ,%v", evt.Event)
 						}
 					}
 				}()

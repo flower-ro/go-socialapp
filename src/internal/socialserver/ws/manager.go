@@ -36,14 +36,12 @@ func (manager *ClientManager) broadcastMsg(msg whatsappbase.BroadcastMessage) {
 
 func (manager *ClientManager) Start() {
 	for {
-		log.Info("<---监听管道通信--->")
 		select {
 		case conn := <-manager.register: // 建立连接
 			log.Infof("建立新连接: %v", conn.id)
 			Manager.clients[conn.id] = conn
 			replyMsg := &whatsappbase.BroadcastMessage{
-				Code:    "CONNECT_SUCCESS",
-				Message: "",
+				Code: "CONNECT_SUCCESS",
 			}
 			msg, _ := json.Marshal(replyMsg)
 			_ = conn.socket.WriteMessage(websocket.TextMessage, msg)
@@ -51,8 +49,7 @@ func (manager *ClientManager) Start() {
 			log.Infof("连接失败:%v", conn.id)
 			if _, ok := Manager.clients[conn.id]; ok {
 				replyMsg := &whatsappbase.BroadcastMessage{
-					Code:    "DISCONNECT",
-					Message: "",
+					Code: "DISCONNECT",
 				}
 				msg, _ := json.Marshal(replyMsg)
 				_ = conn.socket.WriteMessage(websocket.TextMessage, msg)

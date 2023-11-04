@@ -47,7 +47,7 @@ func routeGroup(group *gin.RouterGroup) {
 
 		accountRoute.POST("", middleware.DealHanlder(accountController.Create))
 		accountRoute.GET("/login", middleware.DealHanlder(accountController.Login))
-		accountRoute.POST("/logout/:phone", middleware.DealHanlder(accountController.Login)) // admin api
+		accountRoute.POST("/logout/:phone", middleware.DealHanlder(accountController.Logout)) // admin api
 	}
 
 }
