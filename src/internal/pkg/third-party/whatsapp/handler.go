@@ -37,15 +37,15 @@ func handler(rawEvt interface{}) {
 		}
 	case *events.PairSuccess:
 		log.Infof("Successfully pair with %s", evt.ID.String())
-		//websocket.Broadcast <- websocket.BroadcastMessage{
-		//	Code:    "LOGIN_SUCCESS",
-		//	Message: fmt.Sprintf("Successfully pair with %s", evt.ID.String()),
-		//}
+		Broadcast <- BroadcastMessage{
+			Code:    "LOGIN_SUCCESS",
+			Message: fmt.Sprintf("Successfully pair with %s", evt.ID.String()),
+		}
 	case *events.LoggedOut:
-		//websocket.Broadcast <- websocket.BroadcastMessage{
-		//	Code:   "LIST_DEVICES",
-		//	Result: nil,
-		//}
+		Broadcast <- BroadcastMessage{
+			Code:   "LIST_DEVICES",
+			Result: nil,
+		}
 	case *events.Connected, *events.PushNameSetting:
 		if len(cli.Store.PushName) == 0 {
 			return

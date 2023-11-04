@@ -24,7 +24,7 @@ require (
 	github.com/rookie-ninja/rk-boot v1.4.8
 	github.com/rookie-ninja/rk-boot/gf v0.0.15
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
-	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/sirupsen/logrus v1.8.1
 	github.com/sony/sonyflake v1.0.0
 	github.com/speps/go-hashids v2.0.0+incompatible
 	github.com/spf13/cobra v1.2.1
@@ -42,7 +42,10 @@ require (
 	gorm.io/gorm v1.25.5
 )
 
-require github.com/mattn/go-sqlite3 v1.14.17
+require (
+	github.com/gorilla/websocket v1.5.0
+	github.com/mattn/go-sqlite3 v1.14.17
+)
 
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect
@@ -78,7 +81,6 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grantae/certinfo v0.0.0-20170412194111-59d56a35515b // indirect
 	github.com/grokify/html-strip-tags-go v0.0.1 // indirect
 	github.com/hako/durafmt v0.0.0-20200710122514-c0fb7b4da026 // indirect

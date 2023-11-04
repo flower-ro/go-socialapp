@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"github.com/marmotedu/iam/pkg/log"
+	whatsappbase "go-socialapp/internal/pkg/third-party/whatsapp"
 )
 
 var Manager = ClientManager{
 	clients:    make(map[string]*Client), // 参与连接的用户，出于性能的考虑，需要设置最大连接数
-	broadcast:  make(chan wsMessage),
+	broadcast:  whatsappbase.Broadcast,
 	register:   make(chan *Client),
 	unregister: make(chan *Client),
 }
@@ -16,7 +17,7 @@ var Manager = ClientManager{
 // 用户管理
 type ClientManager struct {
 	clients    map[string]*Client
-	broadcast  chan wsMessage
+	broadcast  chan whatsappbase.BroadcastMessage
 	register   chan *Client
 	unregister chan *Client
 }
@@ -29,7 +30,7 @@ func (manager *ClientManager) unRegister(client *Client) {
 	manager.unregister <- client
 }
 
-func (manager *ClientManager) broadcastMsg(msg wsMessage) {
+func (manager *ClientManager) broadcastMsg(msg whatsappbase.BroadcastMessage) {
 	manager.broadcast <- msg
 }
 
@@ -40,7 +41,7 @@ func (manager *ClientManager) Start() {
 		case conn := <-manager.register: // 建立连接
 			log.Infof("建立新连接: %v", conn.id)
 			Manager.clients[conn.id] = conn
-			replyMsg := &wsMessage{
+			replyMsg := &whatsappbase.BroadcastMessage{
 				Code:    "CONNECT",
 				Message: "success",
 			}
@@ -49,7 +50,7 @@ func (manager *ClientManager) Start() {
 		case conn := <-Manager.unregister: // 断开连接
 			log.Infof("连接失败:%v", conn.id)
 			if _, ok := Manager.clients[conn.id]; ok {
-				replyMsg := &wsMessage{
+				replyMsg := &whatsappbase.BroadcastMessage{
 					Code:    "CONNECT",
 					Message: "fail",
 				}

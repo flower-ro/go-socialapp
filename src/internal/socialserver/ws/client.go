@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/marmotedu/iam/pkg/log"
 	"github.com/sirupsen/logrus"
+	whatsappbase "go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/client/whatsapp"
 )
 
@@ -51,7 +52,7 @@ func (c *Client) Read() {
 
 		if messageType == websocket.TextMessage {
 			// Broadcast the received message
-			var messageData wsMessage
+			var messageData whatsappbase.BroadcastMessage
 			err := json.Unmarshal(message, &messageData)
 			if err != nil {
 				log.Errorf("error unmarshal message: %s", err.Error())
@@ -62,7 +63,7 @@ func (c *Client) Read() {
 				if err != nil {
 					log.Errorf("FETCH_DEVICES err: %s", err.Error())
 				}
-				bmsg := wsMessage{
+				bmsg := whatsappbase.BroadcastMessage{
 					Code:    "LIST_DEVICES",
 					Message: "Device found",
 					Result:  devices,
@@ -79,7 +80,7 @@ func (c *Client) Read() {
 				go func() {
 					for evt := range ch {
 						if evt.Event == "code" {
-							replyMsg := wsMessage{
+							replyMsg := whatsappbase.BroadcastMessage{
 								Code:    "QRCODE",
 								Message: "QRCODE found",
 								Result:  evt.Code,
