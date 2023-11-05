@@ -66,20 +66,26 @@ func (manager *ClientManager) Start() {
 			}
 			// Send the message to all clients
 			for id, connection := range manager.clients {
-				if err := connection.socket.WriteMessage(websocket.TextMessage, marshalMessage); err != nil {
+				if err = connection.socket.WriteMessage(websocket.TextMessage, marshalMessage); err != nil {
 					log.Errorf("write error: %v", err)
 
-					err := connection.socket.WriteMessage(websocket.CloseMessage, []byte{})
+					err = connection.socket.WriteMessage(websocket.CloseMessage, []byte{})
 					if err != nil {
 						log.Errorf("write message close error: %v", err)
+						err = connection.socket.Close()
+						if err != nil {
+							log.Errorf("close error:%v", err)
+							return
+						}
+						delete(manager.clients, id)
 						return
 					}
-					err = connection.socket.Close()
-					if err != nil {
-						log.Errorf("close error:%v", err)
-						return
-					}
-					delete(manager.clients, id)
+					//err = connection.socket.Close()
+					//if err != nil {
+					//	log.Errorf("close error:%v", err)
+					//	return
+					//}
+					//delete(manager.clients, id)
 				}
 			}
 		}
