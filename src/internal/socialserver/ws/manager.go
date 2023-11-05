@@ -74,7 +74,7 @@ func (manager *ClientManager) Start() {
 			}
 		//广播信息
 		case message := <-Manager.broadcast:
-			log.Infof("message received: %s", message)
+			//log.Infof("message received: %s", message)
 			marshalMessage, err := json.Marshal(message)
 			if err != nil {
 				log.Errorf("Marshal error:", err)

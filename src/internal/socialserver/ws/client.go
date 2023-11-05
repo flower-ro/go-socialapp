@@ -80,7 +80,12 @@ func (c *Client) Read() {
 					continue
 				}
 				go func() {
-					log.Infof("遍历获取到的 qrcode")
+					defer func() {
+						if r := recover(); r != nil {
+							log.Errorf("%v", err)
+						}
+					}()
+					//log.Infof("遍历获取到的 qrcode")
 					for evt := range ch {
 						//spew.Dump(evt)
 						if evt.Event == "code" {

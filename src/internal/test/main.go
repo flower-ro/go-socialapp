@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/marmotedu/iam/pkg/log"
+	whatsappbase "go-socialapp/internal/pkg/third-party/whatsapp"
 	"time"
 )
 
@@ -31,7 +33,7 @@ func (s *a) cicle() {
 		time.Sleep(2 * time.Second)
 	}
 }
-func main() {
+func main2() {
 	ss := &a{}
 
 	go func() {
@@ -42,4 +44,15 @@ func main() {
 	time.Sleep(4 * time.Second)
 	ss.closeFlag = true
 	select {}
+}
+
+func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Infof("fas err %v", err)
+		}
+	}()
+	send := make(chan whatsappbase.BroadcastMessage, 10)
+	close(send)
+	close(send)
 }
