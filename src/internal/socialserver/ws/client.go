@@ -90,6 +90,7 @@ func (c *Client) Read() {
 							log.Errorf("error when get qrCode ,%v", evt.Event)
 						}
 					}
+					log.Infof("遍历结束")
 				}()
 
 			}
@@ -107,12 +108,14 @@ func (c *Client) Write() {
 	for {
 		select {
 		case message, ok := <-c.send:
+			log.Infof("准备发送消息")
 			if !ok {
-				err := c.socket.WriteMessage(websocket.CloseMessage, []byte{})
-				if err != nil {
-					log.Errorf("empty message write error:%v", err)
-					return
-				}
+				log.Infof("通道没有数据，且关闭了，，如果通道没有数据且通道未关闭就会堵塞")
+				//err := c.socket.WriteMessage(websocket.CloseMessage, []byte{})
+				//if err != nil {
+				//	log.Errorf("empty message write error:%v", err)
+				//	return
+				//}
 				return
 			}
 			msg, err := json.Marshal(message)
@@ -120,9 +123,13 @@ func (c *Client) Write() {
 				log.Errorf("error Marshal message: %s", err.Error())
 				continue
 			}
+
+			log.Infof("开始发送消息了")
+			spew.Dump(message)
 			err = c.socket.WriteMessage(websocket.TextMessage, msg)
 
 			if err != nil {
+				log.Infof("发送消息失败")
 				log.Errorf("write message close error: %v", err)
 				err = c.socket.WriteMessage(websocket.CloseMessage, []byte{})
 				if err != nil {
@@ -130,6 +137,7 @@ func (c *Client) Write() {
 					return
 				}
 			}
+			log.Infof("发送消息成功")
 		}
 	}
 }
