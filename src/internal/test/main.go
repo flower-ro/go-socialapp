@@ -1,8 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
-func main() {
+func main1() {
 	c := make(chan int, 3)
 	c <- 10
 	c <- 20
@@ -13,4 +16,30 @@ func main() {
 		//如果通道未关闭且没有数据了就会堵塞
 		fmt.Println(i, ":", ok, x)
 	}
+}
+
+type a struct {
+	closeFlag bool
+}
+
+func (s *a) cicle() {
+	for {
+		if s.closeFlag == true {
+			break
+		}
+		fmt.Println("111")
+		time.Sleep(2 * time.Second)
+	}
+}
+func main() {
+	ss := &a{}
+
+	go func() {
+		ss.cicle()
+		fmt.Println("结束")
+	}()
+
+	time.Sleep(4 * time.Second)
+	ss.closeFlag = true
+	select {}
 }

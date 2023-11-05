@@ -66,6 +66,7 @@ func (manager *ClientManager) Start() {
 				_ = conn.socket.WriteMessage(websocket.TextMessage, msg)
 				close(conn.send)
 				conn.socket.Close()
+				conn = nil
 				delete(Manager.clients, conn.id)
 			}
 		//广播信息
