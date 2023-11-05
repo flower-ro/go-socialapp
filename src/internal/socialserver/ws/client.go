@@ -29,9 +29,9 @@ func NewClient(id string, conn *websocket.Conn) *Client {
 func (c *Client) Read() {
 	defer func() { // 避免忘记关闭，所以要加上close
 		if err := recover(); err != nil {
-			log.Errorf("%v", err)
+			//	log.Errorf("%v", err)
 		}
-		log.Infof("来自 read unRegister")
+		//log.Infof("来自 read unRegister")
 		Manager.unRegister(c)
 	}()
 	for {
@@ -82,7 +82,7 @@ func (c *Client) Read() {
 				go func() {
 					defer func() {
 						if r := recover(); r != nil {
-							log.Errorf("%v", err)
+							//		log.Errorf("%v", err)
 						}
 					}()
 					//log.Infof("遍历获取到的 qrcode")
@@ -112,7 +112,7 @@ func (c *Client) Read() {
 
 func (c *Client) Write() {
 	defer func() {
-		log.Infof("来自 write unRegister")
+		//log.Infof("来自 write unRegister")
 		Manager.unRegister(c)
 	}()
 	for {
@@ -120,7 +120,7 @@ func (c *Client) Write() {
 		case message, ok := <-c.send:
 			//log.Infof("准备发送消息")
 			if !ok {
-				log.Infof("通道没有数据，且关闭了，，如果通道没有数据且通道未关闭就会堵塞")
+				//log.Infof("通道没有数据，且关闭了，，如果通道没有数据且通道未关闭就会堵塞")
 				return
 			}
 			msg, err := json.Marshal(message)

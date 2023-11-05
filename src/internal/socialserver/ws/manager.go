@@ -60,7 +60,7 @@ func (manager *ClientManager) Start() {
 			if conn.isClose {
 				continue
 			}
-			log.Infof("连接失败:%v", conn.id)
+			log.Infof("----连接失败:%v", conn.id)
 			if _, ok := Manager.clients[conn.id]; ok {
 				replyMsg := &whatsappbase.BroadcastMessage{
 					Code: "DISCONNECT",
