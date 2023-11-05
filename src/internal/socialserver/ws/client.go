@@ -3,7 +3,6 @@ package ws
 import (
 	"context"
 	"encoding/json"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/websocket"
 	"github.com/marmotedu/iam/pkg/log"
 	whatsappbase "go-socialapp/internal/pkg/third-party/whatsapp"
@@ -74,7 +73,7 @@ func (c *Client) Read() {
 			}
 
 			if messageData.Code == "QRCODE" {
-				log.Infof("收到请求 qrcode")
+				//log.Infof("收到请求 qrcode")
 				ch, err := c.waService.App().GetQrCode(context.Background())
 				if err != nil {
 					log.Errorf("QRCODE err: %s", err.Error())
@@ -83,7 +82,7 @@ func (c *Client) Read() {
 				go func() {
 					log.Infof("遍历获取到的 qrcode")
 					for evt := range ch {
-						spew.Dump(evt)
+						//spew.Dump(evt)
 						if evt.Event == "code" {
 							replyMsg := whatsappbase.BroadcastMessage{
 								Code:   "QRCODE",
@@ -95,7 +94,7 @@ func (c *Client) Read() {
 							log.Errorf("error when get qrCode ,%v", evt.Event)
 						}
 					}
-					log.Infof("遍历结束")
+					//log.Infof("遍历结束")
 				}()
 
 			}
@@ -114,7 +113,7 @@ func (c *Client) Write() {
 	for {
 		select {
 		case message, ok := <-c.send:
-			log.Infof("准备发送消息")
+			//log.Infof("准备发送消息")
 			if !ok {
 				log.Infof("通道没有数据，且关闭了，，如果通道没有数据且通道未关闭就会堵塞")
 				return
@@ -125,11 +124,11 @@ func (c *Client) Write() {
 				continue
 			}
 
-			log.Infof("开始发送消息了")
+			//log.Infof("开始发送消息了")
 			err = c.socket.WriteMessage(websocket.TextMessage, msg)
 
 			if err != nil {
-				log.Infof("发送消息失败")
+				//log.Infof("发送消息失败")
 				log.Errorf("write message close error: %v", err)
 				err = c.socket.WriteMessage(websocket.CloseMessage, []byte{})
 				if err != nil {
@@ -137,7 +136,7 @@ func (c *Client) Write() {
 					return
 				}
 			}
-			log.Infof("发送消息成功")
+			//log.Infof("发送消息成功")
 		}
 	}
 }
