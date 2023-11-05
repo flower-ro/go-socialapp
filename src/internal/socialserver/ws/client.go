@@ -22,7 +22,7 @@ func NewClient(id string, conn *websocket.Conn) *Client {
 	return &Client{
 		id:        id,
 		socket:    conn,
-		send:      make(chan whatsappbase.BroadcastMessage),
+		send:      make(chan whatsappbase.BroadcastMessage, 10),
 		waService: whatsapp.Client(),
 	}
 }

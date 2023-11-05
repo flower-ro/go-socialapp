@@ -57,6 +57,9 @@ func (manager *ClientManager) Start() {
 				}
 			}
 		case conn := <-Manager.unregister: // 断开连接
+			if conn.isClose {
+				continue
+			}
 			log.Infof("连接失败:%v", conn.id)
 			if _, ok := Manager.clients[conn.id]; ok {
 				replyMsg := &whatsappbase.BroadcastMessage{
@@ -66,8 +69,8 @@ func (manager *ClientManager) Start() {
 				_ = conn.socket.WriteMessage(websocket.TextMessage, msg)
 				close(conn.send)
 				conn.socket.Close()
-				conn = nil
 				delete(Manager.clients, conn.id)
+				conn.isClose = true
 			}
 		//广播信息
 		case message := <-Manager.broadcast:
