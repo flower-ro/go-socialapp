@@ -67,5 +67,5 @@ func wsHandler(c *gin.Context) {
 	// 用户注册到用户管理上
 	ws.Manager.Register(client)
 	go client.Read()
-	//	go client.Write()
+	go client.Write()
 }
