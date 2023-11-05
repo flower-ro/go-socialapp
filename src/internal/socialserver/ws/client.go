@@ -29,6 +29,9 @@ func NewClient(id string, conn *websocket.Conn) *Client {
 
 func (c *Client) Read() {
 	defer func() { // 避免忘记关闭，所以要加上close
+		if err := recover(); err != nil {
+			log.Errorf("%v", err)
+		}
 		log.Infof("来自 read unRegister")
 		Manager.unRegister(c)
 	}()
