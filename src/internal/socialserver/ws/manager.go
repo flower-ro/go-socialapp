@@ -74,7 +74,8 @@ func (manager *ClientManager) Start() {
 			}
 		//广播信息
 		case message := <-Manager.broadcast:
-			if message.Code == "LOGIN_SUCCESS" && message.Result == "" {
+			if message.Code == "LOGIN_SUCCESS" {
+				log.Infof("message received: %s", message)
 				continue
 			}
 			//log.Infof("message received: %s", message)
