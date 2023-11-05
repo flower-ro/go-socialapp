@@ -43,8 +43,19 @@ func (manager *ClientManager) Start() {
 			replyMsg := &whatsappbase.BroadcastMessage{
 				Code: "CONNECT_SUCCESS",
 			}
-			msg, _ := json.Marshal(replyMsg)
-			_ = conn.socket.WriteMessage(websocket.TextMessage, msg)
+			msg, err := json.Marshal(replyMsg)
+			if err != nil {
+				log.Errorf("Marshal error:", err)
+				continue
+			}
+			err = conn.socket.WriteMessage(websocket.TextMessage, msg)
+			if err != nil {
+				err = conn.socket.WriteMessage(websocket.CloseMessage, []byte{})
+				if err != nil {
+					log.Errorf("write empty message error: %v", err)
+					manager.unRegister(conn)
+				}
+			}
 		case conn := <-Manager.unregister: // 断开连接
 			log.Infof("连接失败:%v", conn.id)
 			if _, ok := Manager.clients[conn.id]; ok {
@@ -54,6 +65,7 @@ func (manager *ClientManager) Start() {
 				msg, _ := json.Marshal(replyMsg)
 				_ = conn.socket.WriteMessage(websocket.TextMessage, msg)
 				close(conn.send)
+				conn.socket.Close()
 				delete(Manager.clients, conn.id)
 			}
 		//广播信息
@@ -61,31 +73,19 @@ func (manager *ClientManager) Start() {
 			log.Infof("message received: %s", message)
 			marshalMessage, err := json.Marshal(message)
 			if err != nil {
-				log.Errorf("write error:", err)
-				return
+				log.Errorf("Marshal error:", err)
+				continue
 			}
 			// Send the message to all clients
-			for id, connection := range manager.clients {
+			for _, connection := range manager.clients {
 				if err = connection.socket.WriteMessage(websocket.TextMessage, marshalMessage); err != nil {
 					log.Errorf("write error: %v", err)
 
 					err = connection.socket.WriteMessage(websocket.CloseMessage, []byte{})
 					if err != nil {
-						log.Errorf("write message close error: %v", err)
-						err = connection.socket.Close()
-						if err != nil {
-							log.Errorf("close error:%v", err)
-							return
-						}
-						delete(manager.clients, id)
-						return
+						log.Errorf("write empty message close error: %v", err)
+						manager.unRegister(connection)
 					}
-					//err = connection.socket.Close()
-					//if err != nil {
-					//	log.Errorf("close error:%v", err)
-					//	return
-					//}
-					//delete(manager.clients, id)
 				}
 			}
 		}

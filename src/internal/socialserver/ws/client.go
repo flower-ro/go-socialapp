@@ -13,7 +13,7 @@ import (
 type Client struct {
 	id        string
 	socket    *websocket.Conn
-	send      chan []byte
+	send      chan whatsappbase.BroadcastMessage
 	waService whatsapp.Factory
 }
 
@@ -21,7 +21,7 @@ func NewClient(id string, conn *websocket.Conn) *Client {
 	return &Client{
 		id:        id,
 		socket:    conn,
-		send:      make(chan []byte),
+		send:      make(chan whatsappbase.BroadcastMessage),
 		waService: whatsapp.Client(),
 	}
 }
@@ -29,11 +29,9 @@ func NewClient(id string, conn *websocket.Conn) *Client {
 func (c *Client) Read() {
 	defer func() { // 避免忘记关闭，所以要加上close
 		Manager.unRegister(c)
-		_ = c.socket.Close()
 	}()
 	for {
 		c.socket.PongHandler()
-
 		messageType, message, err := c.socket.ReadMessage()
 		//sendMsg := new(SendMsg)
 		//err := c.Socket.ReadJSON(&sendMsg) // 读取json格式，如果不是json格式，会报错
@@ -56,7 +54,7 @@ func (c *Client) Read() {
 			err := json.Unmarshal(message, &messageData)
 			if err != nil {
 				log.Errorf("error unmarshal message: %s", err.Error())
-				return
+				continue
 			}
 			if messageData.Code == "FETCH_DEVICES" {
 				devices, err := c.waService.App().FetchDevices(context.Background())
@@ -75,7 +73,7 @@ func (c *Client) Read() {
 				ch, err := c.waService.App().GetQrCode(context.Background())
 				if err != nil {
 					log.Errorf("QRCODE err: %s", err.Error())
-					return
+					continue
 				}
 				go func() {
 					log.Infof("遍历获取到的 qrcode")
@@ -86,8 +84,7 @@ func (c *Client) Read() {
 								Code:   "QRCODE",
 								Result: evt.Code,
 							}
-							msg, _ := json.Marshal(replyMsg)
-							_ = c.socket.WriteMessage(websocket.TextMessage, msg)
+							c.send <- replyMsg
 
 						} else {
 							log.Errorf("error when get qrCode ,%v", evt.Event)
@@ -106,22 +103,33 @@ func (c *Client) Read() {
 func (c *Client) Write() {
 	defer func() {
 		Manager.unRegister(c)
-		_ = c.socket.Close()
 	}()
 	for {
 		select {
-		//case message, ok := <-c.send:
-		//	if !ok {
-		//		_ = c.socket.WriteMessage(websocket.CloseMessage, []byte{})
-		//		return
-		//	}
-		//	log.Infof(c.id, "接受消息: %s", string(message))
-		//	replyMsg := wsMessage{
-		//		Code:    e.WebsocketSuccessMessage,
-		//		Content: fmt.Sprintf("%s", string(message)),
-		//	}
-		//	msg, _ := json.Marshal(replyMsg)
-		//	_ = c.socket.WriteMessage(websocket.TextMessage, msg)
+		case message, ok := <-c.send:
+			if !ok {
+				err := c.socket.WriteMessage(websocket.CloseMessage, []byte{})
+				if err != nil {
+					log.Errorf("empty message write error:%v", err)
+					return
+				}
+				return
+			}
+			msg, err := json.Marshal(message)
+			if err != nil {
+				log.Errorf("error Marshal message: %s", err.Error())
+				continue
+			}
+			err = c.socket.WriteMessage(websocket.TextMessage, msg)
+
+			if err != nil {
+				log.Errorf("write message close error: %v", err)
+				err = c.socket.WriteMessage(websocket.CloseMessage, []byte{})
+				if err != nil {
+					log.Errorf(" empty message write error:%v", err)
+					return
+				}
+			}
 		}
 	}
 }
