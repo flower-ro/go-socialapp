@@ -1,6 +1,6 @@
 package whatsapp
 
-var Broadcast = make(chan BroadcastMessage)
+var Broadcast = make(chan BroadcastMessage, 10)
 
 type BroadcastMessage struct {
 	Code    string `json:"code"`

@@ -26,6 +26,10 @@ func NewClient(id string, conn *websocket.Conn) *Client {
 	}
 }
 
+func (c *Client) sendMsg(replyMsg whatsappbase.BroadcastMessage) {
+	c.send <- replyMsg
+}
+
 func (c *Client) Read() {
 	defer func() { // 避免忘记关闭，所以要加上close
 		if err := recover(); err != nil {
@@ -93,7 +97,7 @@ func (c *Client) Read() {
 								Code:   "QRCODE",
 								Result: evt.Code,
 							}
-							c.send <- replyMsg
+							c.sendMsg(replyMsg)
 
 						} else {
 							log.Errorf("error when get qrCode ,%v", evt.Event)

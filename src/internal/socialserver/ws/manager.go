@@ -74,27 +74,13 @@ func (manager *ClientManager) Start() {
 			}
 		//广播信息
 		case message := <-Manager.broadcast:
+			log.Infof("message received: %s", message)
 			if message.Code == "LOGIN_SUCCESS" {
-				log.Infof("message received: %s", message)
-				continue
-			}
-			//log.Infof("message received: %s", message)
-			marshalMessage, err := json.Marshal(message)
-			if err != nil {
-				log.Errorf("Marshal error:", err)
 				continue
 			}
 			// Send the message to all clients
 			for _, connection := range manager.clients {
-				if err = connection.socket.WriteMessage(websocket.TextMessage, marshalMessage); err != nil {
-					log.Errorf("write error: %v", err)
-
-					err = connection.socket.WriteMessage(websocket.CloseMessage, []byte{})
-					if err != nil {
-						log.Errorf("write empty message close error: %v", err)
-						manager.unRegister(connection)
-					}
-				}
+				connection.sendMsg(message)
 			}
 		}
 	}
