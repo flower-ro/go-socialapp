@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/google/uuid"
 	"github.com/marmotedu/errors"
 	"github.com/marmotedu/iam/pkg/log"
@@ -37,9 +38,11 @@ func handler(rawEvt interface{}) {
 		}
 	case *events.PairSuccess:
 		log.Infof("Successfully pair with %s", evt.ID.String())
+		spew.Dump(evt)
 		Broadcast <- BroadcastMessage{
-			Code:    "LOGIN_SUCCESS",
-			Message: fmt.Sprintf("Successfully pair with %s", evt.ID.String()),
+			Code: "LOGIN_SUCCESS",
+			//Message: fmt.Sprintf("Successfully pair with %s", evt.ID.String()),
+			Result: evt.ID.String(),
 		}
 	case *events.LoggedOut:
 		Broadcast <- BroadcastMessage{

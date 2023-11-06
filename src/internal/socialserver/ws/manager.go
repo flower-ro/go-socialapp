@@ -74,10 +74,7 @@ func (manager *ClientManager) Start() {
 			}
 		//广播信息
 		case message := <-Manager.broadcast:
-			log.Infof("message received: %s", message)
-			if message.Code == "LOGIN_SUCCESS" {
-				continue
-			}
+			//log.Infof("message received: %s", message)
 			// Send the message to all clients
 			for _, connection := range manager.clients {
 				connection.sendMsg(message)
