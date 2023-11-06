@@ -24,7 +24,7 @@ func InitWaListen() {
 		listenCh: whatsapp.BroadcastCh,
 		srv:      srvv1.GetService(),
 	}
-	waListen.start()
+	go waListen.start()
 }
 
 func (w *WaListen) start() {
