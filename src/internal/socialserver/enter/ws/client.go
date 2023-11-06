@@ -1,32 +1,28 @@
 package ws
 
 import (
-	"context"
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"github.com/marmotedu/iam/pkg/log"
-	whatsappbase "go-socialapp/internal/pkg/third-party/whatsapp"
-	"go-socialapp/internal/socialserver/client/whatsapp"
+	"go-socialapp/internal/socialserver/cache/notlogin"
 )
 
 type Client struct {
-	id        string
-	socket    *websocket.Conn
-	send      chan whatsappbase.BroadcastMessage
-	waService whatsapp.Factory
-	isClose   bool
+	id      string
+	socket  *websocket.Conn
+	send    chan Message
+	isClose bool
 }
 
 func NewClient(id string, conn *websocket.Conn) *Client {
 	return &Client{
-		id:        id,
-		socket:    conn,
-		send:      make(chan whatsappbase.BroadcastMessage, 10),
-		waService: whatsapp.Client(),
+		id:     id,
+		socket: conn,
+		send:   make(chan Message, 10),
 	}
 }
 
-func (c *Client) sendMsg(replyMsg whatsappbase.BroadcastMessage) {
+func (c *Client) sendMsg(replyMsg Message) {
 	c.send <- replyMsg
 }
 
@@ -58,27 +54,27 @@ func (c *Client) Read() {
 
 		if messageType == websocket.TextMessage {
 			// Broadcast the received message
-			var messageData whatsappbase.BroadcastMessage
+			var messageData Message
 			err := json.Unmarshal(message, &messageData)
 			if err != nil {
 				log.Errorf("error unmarshal message: %s", err.Error())
 				continue
 			}
-			if messageData.Code == "FETCH_DEVICES" {
-				devices, err := c.waService.App().FetchDevices(context.Background())
-				if err != nil {
-					log.Errorf("FETCH_DEVICES err: %s", err.Error())
-				}
-				bmsg := whatsappbase.BroadcastMessage{
-					Code:   "LIST_DEVICES",
-					Result: devices,
-				}
-				Manager.broadcastMsg(bmsg)
-			}
+			//if messageData.Code == "FETCH_DEVICES" {
+			//	devices, err := notlogin.TmpWaClientCache.GetQrCodeByNewWaClient()
+			//	if err != nil {
+			//		log.Errorf("FETCH_DEVICES err: %s", err.Error())
+			//	}
+			//	bmsg := BroadcastMessage{
+			//		Code:   "LIST_DEVICES",
+			//		Result: devices,
+			//	}
+			//	Manager.broadcastMsg(bmsg)
+			//}
 
 			if messageData.Code == "QRCODE" {
 				//log.Infof("收到请求 qrcode")
-				ch, err := c.waService.App().GetQrCode(context.Background())
+				ch, err := notlogin.TmpWaClientCache.GetQrCodeByNewWaClient()
 				if err != nil {
 					log.Errorf("QRCODE err: %s", err.Error())
 					continue
@@ -93,7 +89,7 @@ func (c *Client) Read() {
 					for evt := range ch {
 						//spew.Dump(evt)
 						if evt.Event == "code" {
-							replyMsg := whatsappbase.BroadcastMessage{
+							replyMsg := Message{
 								Code:   "QRCODE",
 								Result: evt.Code,
 							}

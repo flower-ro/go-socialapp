@@ -17,17 +17,17 @@ type serviceMessage struct {
 	waCli *whatsmeow.Client
 }
 
-var messageSrv *serviceMessage
+//var messageSrv *serviceMessage
+//
+//func GetMessageService(waCli *whatsmeow.Client) *serviceMessage {
+//	if messageSrv != nil {
+//		return messageSrv
+//	}
+//	messageSrv = newMessageService(waCli)
+//	return messageSrv
+//}
 
-func GetMessageService(waCli *whatsmeow.Client) *serviceMessage {
-	if messageSrv != nil {
-		return messageSrv
-	}
-	messageSrv = newMessageService(waCli)
-	return messageSrv
-}
-
-func newMessageService(waCli *whatsmeow.Client) *serviceMessage {
+func NewMessageService(waCli *whatsmeow.Client) *serviceMessage {
 	return &serviceMessage{
 		waCli: waCli,
 	}

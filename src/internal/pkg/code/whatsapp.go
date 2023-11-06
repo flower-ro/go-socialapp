@@ -47,4 +47,22 @@ const (
 	FailedConnectSqlite3
 	// WaClientExistedInCache - 500: existed whatsapp waClient in cache.
 	WaClientExistedInCache
+
+	// DirNotExistedErr - 500: file dir is not existed.
+	DirNotExistedErr
+
+	// NotSureIsExisted - 500: file Or dir is not sure existed.
+	NotSureIsExisted
+
+	// FileIsExisted - 500: file is existed.
+	FileIsExisted
+
+	// FileIsNotExisted - 500: file is not existed.
+	FileIsNotExisted
+
+	// FileCreatedFail - 500: failed to create file.
+	FileCreatedFail
+
+	// NotLoginErr - 500: not login.
+	NotLoginErr
 )

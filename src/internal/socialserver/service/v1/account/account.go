@@ -3,7 +3,6 @@ package account
 import (
 	"context"
 	"github.com/marmotedu/errors"
-	whatsappClient "go-socialapp/internal/socialserver/client/whatsapp"
 	v1 "go-socialapp/internal/socialserver/model/v1"
 	"go-socialapp/internal/socialserver/store"
 	transcationalDB "go-socialapp/pkg/db"
@@ -11,28 +10,26 @@ import (
 
 type AccountSrv interface {
 	CreateBatch(ctx context.Context, accounts []v1.Account) error
-	Login() (string, error)
+	//Login(phone string) (string, error)
 	Logout(phone string) error
 }
 
 type accountService struct {
 	transcationalDB.TxGenerate
-	store    store.Factory
-	waClient whatsappClient.Factory
+	store store.Factory
 }
 
 var _ AccountSrv = (*accountService)(nil)
 
 var accountSrv *accountService
 
-func GetAccount(store store.Factory, waClient whatsappClient.Factory) *accountService {
+func GetAccount(store store.Factory) *accountService {
 	if accountSrv != nil {
 		return accountSrv
 	}
 	accountSrv = &accountService{
 		TxGenerate: store.GetTxGenerate(),
-		store:      store,
-		waClient:   waClient}
+		store:      store}
 	return accountSrv
 }
 
@@ -44,15 +41,6 @@ func (a *accountService) CreateBatch(ctx context.Context, accounts []v1.Account)
 		}
 		return nil
 	})
-}
-
-func (a *accountService) Login() (string, error) {
-
-	res, err := a.waClient.App().Login(context.Background())
-	if err != nil {
-		return "", err
-	}
-	return res.Code, err
 }
 
 func (a *accountService) Logout(phone string) error {

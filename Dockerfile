@@ -31,10 +31,14 @@ ENV SOCIALSERVER_DB_HOST=10.0.3.10\
 RUN apk update && apk add --no-cache vips-dev ffmpeg
 WORKDIR /app
 # Copy compiled from builder.
+
+VOLUME ["/root/tg-test/wa/ss/tmp", "/app/session/tmp"]
+VOLUME ["/root/tg-test/wa/ss/login", "/app/session/login"]
+
 COPY --from=builder /app/socialapp /app/socialapp
 COPY --from=builder /socialapp/configs /app/configs
 COPY --from=builder /socialapp/storages /app/storages
-# Run the binary.
+
 
 EXPOSE 8808
 

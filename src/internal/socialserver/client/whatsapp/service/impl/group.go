@@ -12,17 +12,17 @@ type groupService struct {
 	waCli *whatsmeow.Client
 }
 
-var groupSrv *groupService
+//var groupSrv *groupService
+//
+////func GetGroupService(waCli *whatsmeow.Client) *groupService {
+////	if groupSrv != nil {
+////		return groupSrv
+////	}
+////	groupSrv = newGroupService(waCli)
+////	return groupSrv
+////}
 
-func GetGroupService(waCli *whatsmeow.Client) *groupService {
-	if groupSrv != nil {
-		return groupSrv
-	}
-	groupSrv = newGroupService(waCli)
-	return groupSrv
-}
-
-func newGroupService(waCli *whatsmeow.Client) *groupService {
+func NewGroupService(waCli *whatsmeow.Client) *groupService {
 	return &groupService{
 		waCli: waCli,
 	}
@@ -55,4 +55,9 @@ func (service groupService) LeaveGroup(ctx context.Context, request model.LeaveG
 	}
 
 	return service.waCli.LeaveGroup(JID)
+}
+
+func (service groupService) CreateGroup() error {
+	//whatsmeow.ReqCreateGroup{}
+	return nil
 }

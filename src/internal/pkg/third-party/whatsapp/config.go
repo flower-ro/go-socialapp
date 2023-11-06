@@ -6,9 +6,12 @@ import (
 )
 
 var (
-	//PathStorages = "E:/software/sqlite3/db"
-	PathStorages = "storages"
-	DBName       = "whatsapp.db"
+	//PathStorages = "session"
+	PathSessions    = "session/login"
+	PathSessionsTmp = "session/tmp"
+	PathImage       = "image"
+	History         = "history"
+	//DBName          = "whatsapp.db"
 
 	AppOs            = fmt.Sprintf("AldinoKemal")
 	AppVersion       = "v4.8.0"

@@ -3,12 +3,11 @@ package service
 import (
 	"context"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
-	"go.mau.fi/whatsmeow"
 )
 
 type IAppService interface {
-	Login(ctx context.Context) (response model.LoginResponse, err error)
-	GetQrCode(ctx context.Context) (<-chan whatsmeow.QRChannelItem, error)
+	//Login(ctx context.Context) (response model.LoginResponse, err error)
+	//GetQrCode(ctx context.Context) (<-chan whatsmeow.QRChannelItem, error)
 	Logout(ctx context.Context) (err error)
 	Reconnect(ctx context.Context) (err error)
 	FirstDevice(ctx context.Context) (response model.DevicesResponse, err error)

@@ -25,11 +25,30 @@ import (
 	"time"
 )
 
-func handler(rawEvt interface{}) {
+var (
+	historySyncID int32
+	startupTime   = time.Now().Unix()
+)
+
+const (
+	MessageTypeLogin  = "LOGIN_SUCCESS"
+	MessageTypeLogout = "LOGOUT_SUCCESS"
+)
+
+type BroadcastMessage struct {
+	Code     string    `json:"code"`
+	WaClient *WaClient `json:"client"`
+	Message  string    `json:"message"`
+	Result   any       `json:"result"`
+}
+
+var BroadcastCh = make(chan BroadcastMessage, 10)
+
+func (w *WaClient) handler(rawEvt interface{}) {
 	switch evt := rawEvt.(type) {
 	case *events.AppStateSyncComplete:
-		if len(cli.Store.PushName) > 0 && evt.Name == appstate.WAPatchCriticalBlock {
-			err := cli.SendPresence(types.PresenceAvailable)
+		if len(w.WaCli.Store.PushName) > 0 && evt.Name == appstate.WAPatchCriticalBlock {
+			err := w.WaCli.SendPresence(types.PresenceAvailable)
 			if err != nil {
 				log.Warnf("Failed to send available presence: %v", err)
 			} else {
@@ -39,24 +58,26 @@ func handler(rawEvt interface{}) {
 	case *events.PairSuccess:
 		log.Infof("Successfully pair with %s", evt.ID.String())
 		spew.Dump(evt)
-		Broadcast <- BroadcastMessage{
-			Code: "LOGIN_SUCCESS",
+		BroadcastCh <- BroadcastMessage{
+			Code:     MessageTypeLogin,
+			WaClient: w,
 			//Message: fmt.Sprintf("Successfully pair with %s", evt.ID.String()),
 			Result: evt.ID.String(),
 		}
 	case *events.LoggedOut:
-		Broadcast <- BroadcastMessage{
-			Code:   "LIST_DEVICES",
-			Result: nil,
+		BroadcastCh <- BroadcastMessage{
+			Code:     MessageTypeLogout,
+			WaClient: w,
+			Result:   nil,
 		}
 	case *events.Connected, *events.PushNameSetting:
-		if len(cli.Store.PushName) == 0 {
+		if len(w.WaCli.Store.PushName) == 0 {
 			return
 		}
 
 		// Send presence available when connecting and when the pushname is changed.
 		// This makes sure that outgoing messages always have the right pushname.
-		err := cli.SendPresence(types.PresenceAvailable)
+		err := w.WaCli.SendPresence(types.PresenceAvailable)
 		if err != nil {
 			log.Warnf("Failed to send available presence: %v", err)
 		} else {
@@ -65,6 +86,7 @@ func handler(rawEvt interface{}) {
 	case *events.StreamReplaced:
 		os.Exit(0)
 	case *events.Message:
+		spew.Dump("----11-----", evt)
 		metaParts := []string{fmt.Sprintf("pushname: %s", evt.Info.PushName), fmt.Sprintf("timestamp: %s", evt.Info.Timestamp)}
 		if evt.Info.Type != "" {
 			metaParts = append(metaParts, fmt.Sprintf("type: %s", evt.Info.Type))
@@ -83,7 +105,7 @@ func handler(rawEvt interface{}) {
 
 		img := evt.Message.GetImageMessage()
 		if img != nil {
-			path, err := ExtractMedia(PathStorages, img)
+			path, err := w.extractMedia(PathImage, img)
 			if err != nil {
 				log.Errorf("Failed to download image: %v", err)
 			} else {
@@ -94,13 +116,13 @@ func handler(rawEvt interface{}) {
 		if WhatsappAutoReplyMessage != "" &&
 			!isGroupJid(evt.Info.Chat.String()) &&
 			!strings.Contains(evt.Info.SourceString(), "broadcast") {
-			_, _ = cli.SendMessage(context.Background(), evt.Info.Sender, &waProto.Message{Conversation: proto.String(WhatsappAutoReplyMessage)})
+			_, _ = w.WaCli.SendMessage(context.Background(), evt.Info.Sender, &waProto.Message{Conversation: proto.String(WhatsappAutoReplyMessage)})
 		}
 
 		if WhatsappWebhook != "" &&
 			!strings.Contains(evt.Info.SourceString(), "broadcast") &&
-			!isFromMySelf(evt.Info.SourceString()) {
-			if err := forwardToWebhook(evt); err != nil {
+			!w.isFromMySelf(evt.Info.SourceString()) {
+			if err := w.forwardToWebhook(evt); err != nil {
 				log.Errorf("Failed forward to webhook,err: %v", err)
 			}
 		}
@@ -122,7 +144,7 @@ func handler(rawEvt interface{}) {
 		}
 	case *events.HistorySync:
 		id := atomic.AddInt32(&historySyncID, 1)
-		fileName := fmt.Sprintf("%s/history-%d-%s-%d-%s.json", PathStorages, startupTime, cli.Store.ID.String(), id, evt.Data.SyncType.String())
+		fileName := fmt.Sprintf("%s/history-%d-%s-%d-%s.json", History, startupTime, w.WaCli.Store.ID.String(), id, evt.Data.SyncType.String())
 		file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE, 0600)
 		if err != nil {
 			log.Errorf("Failed to open file to write history sync: %v", err)
@@ -142,13 +164,13 @@ func handler(rawEvt interface{}) {
 	}
 }
 
-func ExtractMedia(storageLocation string, mediaFile whatsmeow.DownloadableMessage) (extractedMedia ExtractedMedia, err error) {
+func (w *WaClient) extractMedia(storageLocation string, mediaFile whatsmeow.DownloadableMessage) (extractedMedia ExtractedMedia, err error) {
 	if mediaFile == nil {
 		log.Info("Skip download because data is nil")
 		return extractedMedia, nil
 	}
 
-	data, err := cli.Download(mediaFile)
+	data, err := w.WaCli.Download(mediaFile)
 	if err != nil {
 		return extractedMedia, err
 	}
@@ -179,8 +201,8 @@ func ExtractMedia(storageLocation string, mediaFile whatsmeow.DownloadableMessag
 }
 
 // isFromMySelf is a helper function to check if the message is from my self (logged in account)
-func isFromMySelf(jid string) bool {
-	return extractPhoneNumber(jid) == extractPhoneNumber(cli.Store.ID.String())
+func (w *WaClient) isFromMySelf(jid string) bool {
+	return extractPhoneNumber(jid) == extractPhoneNumber(w.WaCli.Store.ID.String())
 }
 
 // extractPhoneNumber is a helper function to extract the phone number from a JID
@@ -202,7 +224,7 @@ func isGroupJid(jid string) bool {
 }
 
 // forwardToWebhook is a helper function to forward event to webhook url
-func forwardToWebhook(evt *events.Message) error {
+func (w *WaClient) forwardToWebhook(evt *events.Message) error {
 	log.Infof("Forwarding event to webhook: %s", WhatsappWebhook)
 	client := &http.Client{Timeout: 10 * time.Second}
 	imageMedia := evt.Message.GetImageMessage()
@@ -259,35 +281,35 @@ func forwardToWebhook(evt *events.Message) error {
 	}
 
 	if imageMedia != nil {
-		path, err := ExtractMedia(PathMedia, imageMedia)
+		path, err := w.extractMedia(PathMedia, imageMedia)
 		if err != nil {
 			return errors.WithCode(code.ErrWebhook, fmt.Sprintf("Failed to download image: %v", err))
 		}
 		body["image"] = path
 	}
 	if stickerMedia != nil {
-		path, err := ExtractMedia(PathMedia, stickerMedia)
+		path, err := w.extractMedia(PathMedia, stickerMedia)
 		if err != nil {
 			return errors.WithCode(code.ErrWebhook, fmt.Sprintf("Failed to download sticker: %v", err))
 		}
 		body["sticker"] = path
 	}
 	if videoMedia != nil {
-		path, err := ExtractMedia(PathMedia, videoMedia)
+		path, err := w.extractMedia(PathMedia, videoMedia)
 		if err != nil {
 			return errors.WithCode(code.ErrWebhook, fmt.Sprintf("Failed to download video: %v", err))
 		}
 		body["video"] = path
 	}
 	if audioMedia != nil {
-		path, err := ExtractMedia(PathMedia, audioMedia)
+		path, err := w.extractMedia(PathMedia, audioMedia)
 		if err != nil {
 			return errors.WithCode(code.ErrWebhook, fmt.Sprintf("Failed to download audio: %v", err))
 		}
 		body["audio"] = path
 	}
 	if documentMedia != nil {
-		path, err := ExtractMedia(PathMedia, documentMedia)
+		path, err := w.extractMedia(PathMedia, documentMedia)
 		if err != nil {
 			return errors.WithCode(code.ErrWebhook, fmt.Sprintf("Failed to download document: %v", err))
 		}

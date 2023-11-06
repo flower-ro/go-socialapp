@@ -17,23 +17,27 @@ type userService struct {
 	waCli *whatsmeow.Client
 }
 
-var userSrv *userService
+//var userSrv *userService
+//
+//func GetUserService(waCli *whatsmeow.Client) *userService {
+//	if userSrv != nil {
+//		return userSrv
+//	}
+//	userSrv = newUserService(waCli)
+//	return userSrv
+//}
 
-func GetUserService(waCli *whatsmeow.Client) *userService {
-	if userSrv != nil {
-		return userSrv
-	}
-	userSrv = newUserService(waCli)
-	return userSrv
-}
-
-func newUserService(waCli *whatsmeow.Client) *userService {
+func NewUserService(waCli *whatsmeow.Client) *userService {
 	return &userService{
 		waCli: waCli,
 	}
 }
 
-func (service userService) Info(ctx context.Context, request model.InfoRequest) (response model.InfoResponse, err error) {
+func (service userService) Info(ctx context.Context, phone string) (response model.InfoResponse, err error) {
+	request := model.InfoRequest{
+		Phone: phone,
+	}
+
 	err = validations.ValidateUserInfo(ctx, request)
 	if err != nil {
 		return response, err

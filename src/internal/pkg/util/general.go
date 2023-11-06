@@ -3,6 +3,8 @@ package utils
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/marmotedu/errors"
+	"go-socialapp/internal/pkg/code"
 	"log"
 	"net/http"
 	"os"
@@ -25,6 +27,44 @@ func RemoveFile(delaySecond int, paths ...string) error {
 				return err
 			}
 		}
+	}
+	return nil
+}
+
+func CheckDir(dir string) error {
+	_, err := os.Stat(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			//目录不存在
+			return errors.WithCode(code.DirNotExistedErr, err.Error())
+		} else {
+			return errors.WithCode(code.NotSureIsExisted, err.Error())
+		}
+
+	}
+	return nil
+}
+
+func CreateFile(dir string, fileName string) error {
+	_, err := os.Stat(dir)
+	if err != nil {
+		if os.IsNotExist(err) {
+			//目录不存在
+			return errors.WithCode(code.DirNotExistedErr, err.Error())
+		} else {
+			return errors.WithCode(code.NotSureIsExisted, err.Error())
+		}
+
+	}
+	newFolder := filepath.Join(dir, fileName)
+	_, err = os.Stat(newFolder)
+	if err == nil {
+		return errors.WithCode(code.FileIsExisted, err.Error())
+	}
+
+	_, err = os.Create(newFolder)
+	if err != nil {
+		return errors.WithCode(code.FileCreatedFail, err.Error())
 	}
 	return nil
 }

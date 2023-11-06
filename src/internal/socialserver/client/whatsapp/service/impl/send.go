@@ -30,17 +30,17 @@ type metadata struct {
 	Content string
 }
 
-var sendSrv *serviceSend
+//var sendSrv *serviceSend
+//
+//func GetSendService(waCli *whatsmeow.Client, appService interface{}) *serviceSend {
+//	if sendSrv != nil {
+//		return sendSrv
+//	}
+//	sendSrv = newSendService(waCli, appService)
+//	return sendSrv
+//}
 
-func GetSendService(waCli *whatsmeow.Client, appService interface{}) *serviceSend {
-	if sendSrv != nil {
-		return sendSrv
-	}
-	sendSrv = newSendService(waCli, appService)
-	return sendSrv
-}
-
-func newSendService(waCli *whatsmeow.Client, appService interface{}) *serviceSend {
+func NewSendService(waCli *whatsmeow.Client, appService interface{}) *serviceSend {
 	return &serviceSend{
 		waCli:      waCli,
 		appService: appService.(*serviceApp),

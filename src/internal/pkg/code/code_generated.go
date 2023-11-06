@@ -65,4 +65,10 @@ func init() {
 	register(FailedGetDevice, 500, "Failed to get device.")
 	register(FailedConnectSqlite3, 500, " Failed to connect to sqlite3 database.")
 	register(WaClientExistedInCache, 500, " existed whatsapp waClient in cache.")
+	register(DirNotExistedErr, 500, "file dir is not existed.")
+	register(NotSureIsExisted, 500, "file Or dir is not sure existed.")
+	register(FileIsNotExisted, 500, "file is not existed.")
+	register(FileIsExisted, 500, "file is existed.")
+	register(FileCreatedFail, 500, "failed to create file.")
+	register(NotLoginErr, 500, "not login.")
 }

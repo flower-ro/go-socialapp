@@ -3,13 +3,11 @@ package socialserver
 import (
 	"github.com/marmotedu/iam/pkg/log"
 	genericoptions "go-socialapp/internal/pkg/options"
-	"go-socialapp/internal/pkg/third-party/whatsapp"
-	whatsapp2 "go-socialapp/internal/socialserver/client/whatsapp"
-	whatsappService "go-socialapp/internal/socialserver/client/whatsapp/service"
 	"go-socialapp/internal/socialserver/config"
+	"go-socialapp/internal/socialserver/enter/listen"
+	"go-socialapp/internal/socialserver/enter/ws"
 	"go-socialapp/internal/socialserver/store"
 	"go-socialapp/internal/socialserver/store/db"
-	"go-socialapp/internal/socialserver/ws"
 	"go-socialapp/pkg/shutdown"
 	"go-socialapp/pkg/shutdown/shutdownmanagers/posixsignal"
 
@@ -54,9 +52,9 @@ type preparedTaskServer struct {
 
 func (s *socialServer) PrepareRun() preparedTaskServer {
 	s.initDB()
-	s.initThirdClient()
 	initRouter(s.genericAPIServer.Engine)
-	go ws.Manager.Start()
+	ws.InitWsClientManager()
+	listen.InitWaListen()
 
 	//	s.initRedisStore()
 	//设置监听到指定信号时，需要执行的回调函数。这些回调函数可以执行一些清理工作。
@@ -81,18 +79,6 @@ func (s preparedTaskServer) Run() error {
 	}
 	return s.genericAPIServer.Run()
 
-}
-
-func (s *socialServer) initThirdClient() {
-	db, err := whatsapp.InitWaDB()
-	if err != nil {
-		log.Fatalf("%+v", err)
-	}
-	cli, err := whatsapp.InitWaCLI(db)
-	if err != nil {
-		log.Fatalf("%+v", err)
-	}
-	whatsapp2.SetClient(whatsappService.NewThirdClient(cli, db))
 }
 
 func (s *socialServer) initDB() {

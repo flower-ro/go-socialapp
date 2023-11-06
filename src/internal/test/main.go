@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/iam/pkg/log"
-	whatsappbase "go-socialapp/internal/pkg/third-party/whatsapp"
+	whatsappbase "go-socialapp/internal/socialserver/enter/ws"
+	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -46,7 +49,7 @@ func main2() {
 	select {}
 }
 
-func main() {
+func main3() {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Infof("fas err %v", err)
@@ -55,4 +58,23 @@ func main() {
 	send := make(chan whatsappbase.BroadcastMessage, 10)
 	close(send)
 	close(send)
+}
+
+func main() {
+	pathQrCode := "E:/software/sqlite3/dbx"
+	//CreateFolder(pathQrCode)
+
+	spew.Dump(os.Stat(pathQrCode))
+
+}
+func CreateFolder(folderPath ...string) error {
+	for _, folder := range folderPath {
+		newFolder := filepath.Join(folder)
+		spew.Dump(newFolder)
+		_, err := os.Create(newFolder)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

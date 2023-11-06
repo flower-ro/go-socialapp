@@ -1,7 +1,6 @@
 package v1
 
 import (
-	whatsappClient "go-socialapp/internal/socialserver/client/whatsapp"
 	"go-socialapp/internal/socialserver/service/v1/account"
 	"go-socialapp/internal/socialserver/store"
 )
@@ -12,17 +11,15 @@ type Service interface {
 }
 
 type service struct {
-	store    store.Factory
-	waClient whatsappClient.Factory
+	store store.Factory
 }
 
 var srv Service
 
 // NewService returns Service interface.
-func NewService(store store.Factory, waClient whatsappClient.Factory) Service {
+func NewService(store store.Factory) Service {
 	return &service{
-		store:    store,
-		waClient: waClient,
+		store: store,
 	}
 }
 
@@ -30,10 +27,10 @@ func GetService() Service {
 	if srv != nil {
 		return srv
 	}
-	srv = NewService(store.Store(), whatsappClient.Client())
+	srv = NewService(store.Store())
 	return srv
 }
 
 func (s *service) Accounts() account.AccountSrv {
-	return account.GetAccount(s.store, s.waClient)
+	return account.GetAccount(s.store)
 }

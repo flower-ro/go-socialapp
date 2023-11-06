@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/marmotedu/errors"
-	"github.com/marmotedu/iam/pkg/log"
-	"github.com/sirupsen/logrus"
 	"go-socialapp/internal/pkg/code"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
@@ -14,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 type serviceApp struct {
@@ -22,100 +19,100 @@ type serviceApp struct {
 	db    *sqlstore.Container
 }
 
-var appservice *serviceApp
+//var appservice *serviceApp
+//
+//func GetAppService(waCli *whatsmeow.Client, db *sqlstore.Container) *serviceApp {
+//	if appservice != nil {
+//		return appservice
+//	}
+//	appservice = newAppService(waCli, db)
+//	return appservice
+//}
 
-func GetAppService(waCli *whatsmeow.Client, db *sqlstore.Container) *serviceApp {
-	if appservice != nil {
-		return appservice
-	}
-	appservice = newAppService(waCli, db)
-	return appservice
-}
-
-func newAppService(waCli *whatsmeow.Client, db *sqlstore.Container) *serviceApp {
+func NewAppService(waCli *whatsmeow.Client, db *sqlstore.Container) *serviceApp {
 	return &serviceApp{
 		waCli: waCli,
 		db:    db,
 	}
 }
 
-func (service serviceApp) GetQrCode(ctx context.Context) (<-chan whatsmeow.QRChannelItem, error) {
-	if service.waCli == nil {
-		return nil, errors.WithCode(code.ErrWaCLI, "")
-	}
-	service.waCli.Disconnect()
+//func (service serviceApp) GetQrCode(ctx context.Context) (<-chan whatsmeow.QRChannelItem, error) {
+//	if service.waCli == nil {
+//		return nil, errors.WithCode(code.ErrWaCLI, "")
+//	}
+//	service.waCli.Disconnect()
+//
+//	ch, err := service.waCli.GetQRChannel(context.Background())
+//	if err != nil {
+//		log.Error(err.Error())
+//		// This error means that we're already logged in, so ignore it.
+//		if errors.Is(err, whatsmeow.ErrQRStoreContainsID) {
+//			_ = service.waCli.Connect() // just connect to websocket
+//			if service.waCli.IsLoggedIn() {
+//				return nil, errors.WithCode(code.ErrAlreadyLoggedIn, err.Error())
+//			}
+//			return nil, errors.WithCode(code.ErrSessionSaved, err.Error())
+//		} else {
+//			return nil, errors.WithCode(code.ErrQrChannel, err.Error())
+//		}
+//	}
+//
+//	err = service.waCli.Connect()
+//	if err != nil {
+//		return nil, errors.WithCode(code.ErrReconnect, err.Error())
+//	}
+//
+//	return ch, nil
+//}
 
-	ch, err := service.waCli.GetQRChannel(context.Background())
-	if err != nil {
-		log.Error(err.Error())
-		// This error means that we're already logged in, so ignore it.
-		if errors.Is(err, whatsmeow.ErrQRStoreContainsID) {
-			_ = service.waCli.Connect() // just connect to websocket
-			if service.waCli.IsLoggedIn() {
-				return nil, errors.WithCode(code.ErrAlreadyLoggedIn, err.Error())
-			}
-			return nil, errors.WithCode(code.ErrSessionSaved, err.Error())
-		} else {
-			return nil, errors.WithCode(code.ErrQrChannel, err.Error())
-		}
-	}
-
-	err = service.waCli.Connect()
-	if err != nil {
-		return nil, errors.WithCode(code.ErrReconnect, err.Error())
-	}
-
-	return ch, nil
-}
-
-func (service serviceApp) Login(_ context.Context) (response model.LoginResponse, err error) {
-	if service.waCli == nil {
-		return response, errors.WithCode(code.ErrWaCLI, "")
-	}
-
-	// Disconnect for reconnecting
-	service.waCli.Disconnect()
-
-	//chImage := make(chan string)
-
-	ch, err := service.waCli.GetQRChannel(context.Background())
-	if err != nil {
-		log.Error(err.Error())
-		// This error means that we're already logged in, so ignore it.
-		if errors.Is(err, whatsmeow.ErrQRStoreContainsID) {
-			_ = service.waCli.Connect() // just connect to websocket
-			if service.waCli.IsLoggedIn() {
-				return response, errors.WithCode(code.ErrAlreadyLoggedIn, err.Error())
-			}
-			return response, errors.WithCode(code.ErrSessionSaved, err.Error())
-		} else {
-			return response, errors.WithCode(code.ErrQrChannel, err.Error())
-		}
-	} else {
-		go func() {
-			for evt := range ch {
-				if evt.Event == "code" {
-					response.Code = evt.Code
-					response.Duration = evt.Timeout / time.Second / 2
-				} else {
-					logrus.Error("error when get qrCode", evt.Event)
-				}
-			}
-		}()
-	}
-
-	err = service.waCli.Connect()
-	if err != nil {
-		return response, errors.WithCode(code.ErrReconnect, err.Error())
-	}
-	//response.ImagePath = <-chImage
-
-	return response, nil
-}
+//func (service serviceApp) Login(_ context.Context) (response model.LoginResponse, err error) {
+//	if service.waCli == nil {
+//		return response, errors.WithCode(code.ErrWaCLI, "")
+//	}
+//
+//	// Disconnect for reconnecting
+//	service.waCli.Disconnect()
+//
+//	//chImage := make(chan string)
+//
+//	ch, err := service.waCli.GetQRChannel(context.Background())
+//	if err != nil {
+//		log.Error(err.Error())
+//		// This error means that we're already logged in, so ignore it.
+//		if errors.Is(err, whatsmeow.ErrQRStoreContainsID) {
+//			_ = service.waCli.Connect() // just connect to websocket
+//			if service.waCli.IsLoggedIn() {
+//				return response, errors.WithCode(code.ErrAlreadyLoggedIn, err.Error())
+//			}
+//			return response, errors.WithCode(code.ErrSessionSaved, err.Error())
+//		} else {
+//			return response, errors.WithCode(code.ErrQrChannel, err.Error())
+//		}
+//	} else {
+//		go func() {
+//			for evt := range ch {
+//				if evt.Event == "code" {
+//					response.Code = evt.Code
+//					response.Duration = evt.Timeout / time.Second / 2
+//				} else {
+//					logrus.Error("error when get qrCode", evt.Event)
+//				}
+//			}
+//		}()
+//	}
+//
+//	err = service.waCli.Connect()
+//	if err != nil {
+//		return response, errors.WithCode(code.ErrReconnect, err.Error())
+//	}
+//	//response.ImagePath = <-chImage
+//
+//	return response, nil
+//}
 
 func (service serviceApp) Logout(_ context.Context) (err error) {
 	// delete history
-	files, err := filepath.Glob(fmt.Sprintf("./%s/history-*", whatsapp.PathStorages))
+	files, err := filepath.Glob(fmt.Sprintf("./%s/history-*", whatsapp.PathSessions))
 	if err != nil {
 		return err
 	}

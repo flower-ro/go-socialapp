@@ -4,36 +4,43 @@ import (
 	services "go-socialapp/internal/socialserver/client/whatsapp/service/impl"
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/store/sqlstore"
+	"time"
 )
 
-type thirdClient struct {
-	waCli *whatsmeow.Client
-	db    *sqlstore.Container
+type waClient struct {
+	lastOperationTime time.Time
+	waCli             *whatsmeow.Client
+	db                *sqlstore.Container
 }
 
-func NewThirdClient(waCli *whatsmeow.Client, db *sqlstore.Container) *thirdClient {
-	return &thirdClient{
+func NewClient(waCli *whatsmeow.Client, db *sqlstore.Container) *waClient {
+	client := &waClient{
 		waCli: waCli,
 		db:    db,
 	}
+	client.UpdateLastOperationTime()
+	return client
+}
+func (t *waClient) UpdateLastOperationTime() {
+	t.lastOperationTime = time.Now()
 }
 
-func (t *thirdClient) App() IAppService {
-	return services.GetAppService(t.waCli, t.db)
+func (t *waClient) App() IAppService {
+	return services.NewAppService(t.waCli, t.db)
 }
 
-func (t *thirdClient) Group() IGroupService {
-	return services.GetGroupService(t.waCli)
+func (t *waClient) Group() IGroupService {
+	return services.NewGroupService(t.waCli)
 }
 
-func (t *thirdClient) Message() IMessageService {
-	return services.GetMessageService(t.waCli)
+func (t *waClient) Message() IMessageService {
+	return services.NewMessageService(t.waCli)
 }
 
-func (t *thirdClient) Send() ISendService {
-	return services.GetSendService(t.waCli, t.App())
+func (t *waClient) Send() ISendService {
+	return services.NewSendService(t.waCli, t.App())
 }
 
-func (t *thirdClient) User() IUserService {
-	return services.GetUserService(t.waCli)
+func (t *waClient) User() IUserService {
+	return services.NewUserService(t.waCli)
 }

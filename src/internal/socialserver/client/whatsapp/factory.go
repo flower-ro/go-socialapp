@@ -1,24 +1,20 @@
 package whatsapp
 
-import "go-socialapp/internal/socialserver/client/whatsapp/service"
+import (
+	"go-socialapp/internal/socialserver/client/whatsapp/service"
+	"go.mau.fi/whatsmeow"
+	"go.mau.fi/whatsmeow/store/sqlstore"
+)
 
-var client Factory
-
-// Factory defines the tg task server platform storage interface.
 type Factory interface {
 	App() service.IAppService
 	Group() service.IGroupService
 	Message() service.IMessageService
 	Send() service.ISendService
 	User() service.IUserService
+	UpdateLastOperationTime()
 }
 
-// Client return the store client instance.
-func Client() Factory {
-	return client
-}
-
-// SetClient set the iam store client.
-func SetClient(factory Factory) {
-	client = factory
+func NewFactory(waCli *whatsmeow.Client, db *sqlstore.Container) Factory {
+	return service.NewClient(waCli, db)
 }
