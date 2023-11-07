@@ -65,7 +65,7 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	spew.Dump("---phone---", phone)
 	response, err := factory.App().FirstDevice(context.Background())
 
-	log.Infof("FirstDevice err %s", err.Error())
+	log.Infof("FirstDevice err %v", err)
 	spew.Dump("---response---", response)
 
 	var inforesponse model.InfoResponse
@@ -79,7 +79,7 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		i++
 	}
 
-	log.Infof("Info err %s", err.Error())
+	log.Infof("Info err %v", err)
 	spew.Dump("---inforesponse---", inforesponse)
 
 	ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
