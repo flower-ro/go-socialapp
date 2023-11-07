@@ -55,6 +55,7 @@ func (w *WaListen) start() {
 }
 
 func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error {
+	defer message.WaClient.WaCli.Disconnect()
 	var phone string
 	if strings.Contains(message.Result.(string), ":") {
 		strs := strings.Split(message.Result.(string), ":")
@@ -83,12 +84,9 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
 		return nil
 	}
-
 	newClient.WaCli.Connect()
 	factory := whatsappApi.NewFactory(newClient.WaCli, newClient.Db)
 	loggedin.WaClientCache.Put(phone, factory)
-
-	message.WaClient.WaCli.Disconnect()
 	ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
 
 	return nil
