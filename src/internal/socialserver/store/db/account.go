@@ -6,7 +6,6 @@ import (
 	"go-socialapp/internal/pkg/code"
 	v1 "go-socialapp/internal/socialserver/model/v1"
 	transcationalDB "go-socialapp/pkg/db"
-	"gorm.io/gorm"
 )
 
 type accountStore struct {
@@ -42,13 +41,15 @@ func (a *accountStore) GetByPhone(ctx context.Context, phone string) (*v1.Accoun
 	account := &v1.Account{}
 	err := a.GetTxDBOr(ctx).Model(v1.Account{}).Where("phone_number = ?", phone).Limit(1).Find(account).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			//return nil, errors.WithCode(code.ErrRecordNotExisted, err.Error())
-			return nil, nil
-		}
+		//if errors.Is(err, gorm.ErrRecordNotFound) {
+		//	//return nil, errors.WithCode(code.ErrRecordNotExisted, err.Error())
+		//	return nil, nil
+		//}
 		return nil, errors.WithCode(code.ErrDatabase, err.Error())
 	}
-
+	if account.PhoneNumber == "" {
+		return nil, nil
+	}
 	return account, nil
 }
 func (a *accountStore) UpdateDevice(ctx context.Context, phone string, device string) error {

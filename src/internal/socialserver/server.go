@@ -3,6 +3,7 @@ package socialserver
 import (
 	"github.com/marmotedu/iam/pkg/log"
 	genericoptions "go-socialapp/internal/pkg/options"
+	"go-socialapp/internal/socialserver/cache/loggedin"
 	"go-socialapp/internal/socialserver/cache/notlogin"
 	"go-socialapp/internal/socialserver/config"
 	"go-socialapp/internal/socialserver/enter/listen"
@@ -55,6 +56,7 @@ func (s *socialServer) PrepareRun() preparedTaskServer {
 	s.initDB()
 	initRouter(s.genericAPIServer.Engine)
 	ws.InitWsClientManager()
+	loggedin.InitWaClientCache()
 	notlogin.InitTmpWaClientCache()
 	listen.InitWaListen()
 
