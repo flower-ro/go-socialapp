@@ -37,5 +37,6 @@ func (a *groupService) Create(ctx context.Context, req request.GroupCreateReq) e
 	if err != nil {
 		return err
 	}
+
 	return waClient.Group().CreateGroup(req.Name, req.Member)
 }

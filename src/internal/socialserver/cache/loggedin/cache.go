@@ -1,6 +1,7 @@
 package loggedin
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
 	whatsappBase "go-socialapp/internal/pkg/third-party/whatsapp"
 	whatsappClient "go-socialapp/internal/socialserver/client/whatsapp"
@@ -48,6 +49,8 @@ func (w *waClientCache) Get(phone string) (whatsappClient.Factory, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "")
 	}
+	err = newClient.WaCli.Connect()
+	spew.Dump("--111112--err=", err, newClient.WaCli.IsLoggedIn())
 	client = whatsappClient.NewFactory(newClient.WaCli, newClient.Db)
 	w.cache[phone] = client
 	return client, nil
