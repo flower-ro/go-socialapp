@@ -3,6 +3,7 @@ package listen
 import (
 	"github.com/marmotedu/iam/pkg/log"
 	"github.com/otiai10/copy"
+	utils "go-socialapp/internal/pkg/util"
 	"go-socialapp/internal/socialserver/cache/loggedin"
 	whatsappApi "go-socialapp/internal/socialserver/client/whatsapp"
 	"go-socialapp/internal/socialserver/enter/ws"
@@ -69,7 +70,9 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		strs := strings.Split(message.Result.(string), "@")
 		phone = strs[0]
 	}
+
 	newPath := filepath.Join(whatsapp.PathSessions, phone+".db")
+	utils.RemoveFile(0, newPath)
 	err = copy.Copy(message.WaClient.Path, newPath)
 	if err != nil {
 		log.Errorf("Phone %s,copy sessionTmp %s  to session file err %s", phone, message.WaClient.Path, err.Error())
