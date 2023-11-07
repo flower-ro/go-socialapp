@@ -35,7 +35,6 @@ func WaitLogin(waCli *whatsmeow.Client) error {
 	if waCli == nil {
 		return errors.WithCode(code.ClientNotInitialized, "Whatsapp client is not initialized")
 	}
-
 	if !waCli.IsConnected() {
 		waCli.Connect()
 	}
@@ -43,6 +42,7 @@ func WaitLogin(waCli *whatsmeow.Client) error {
 	var defaultInterval = 5 * time.Minute
 	expectExpireTime := now.Add(defaultInterval)
 	for {
+		now = utils.GetCurrentTime()
 		if now.After(expectExpireTime) || now.Equal(expectExpireTime) {
 			break
 		}

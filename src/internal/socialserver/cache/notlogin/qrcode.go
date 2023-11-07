@@ -36,6 +36,7 @@ func (t tmpWaClientCache) GetQrCodeByNewWaClient() (<-chan whatsmeow.QRChannelIt
 	err = t.put(client)
 	if err != nil {
 		client.WaCli.Disconnect()
+		t.Del(client)
 		return nil, errors.Wrap(err, "")
 	}
 	return ch, nil

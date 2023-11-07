@@ -7,9 +7,9 @@ import (
 	"go-socialapp/internal/socialserver/cache/notlogin"
 	"go-socialapp/internal/socialserver/config"
 	"go-socialapp/internal/socialserver/enter/listen"
-	"go-socialapp/internal/socialserver/enter/ws"
 	"go-socialapp/internal/socialserver/store"
 	"go-socialapp/internal/socialserver/store/db"
+	"go-socialapp/internal/socialserver/ws"
 	"go-socialapp/pkg/shutdown"
 	"go-socialapp/pkg/shutdown/shutdownmanagers/posixsignal"
 

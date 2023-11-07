@@ -8,7 +8,7 @@ import (
 	"go-socialapp/internal/pkg/middleware"
 	"go-socialapp/internal/socialserver/enter/controller/v1/account"
 	wagroup "go-socialapp/internal/socialserver/enter/controller/v1/group"
-	"go-socialapp/internal/socialserver/enter/ws"
+	"go-socialapp/internal/socialserver/ws"
 
 	// custom gin validators.
 	_ "github.com/marmotedu/iam/pkg/validator"

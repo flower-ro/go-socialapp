@@ -2,7 +2,6 @@ package loggedin
 
 import (
 	"github.com/marmotedu/errors"
-	"github.com/marmotedu/iam/pkg/log"
 	whatsappBase "go-socialapp/internal/pkg/third-party/whatsapp"
 	whatsappApi "go-socialapp/internal/socialserver/client/whatsapp"
 	"sync"
@@ -38,26 +37,17 @@ func (w *waApiCache) Put(phone string, factory whatsappApi.Factory) error {
 }
 
 func (w *waApiCache) Get(phone string) (whatsappApi.Factory, error) {
-	w.lock.RLock()
-	defer w.lock.RUnlock()
+	w.lock.Lock()
+	defer w.lock.Unlock()
 	waApi, ok := w.cache[phone]
-	log.Infof("phone1 %s,wait login", phone)
 	if ok {
 		waApi.UpdateLastOperationTime()
-
-		err := whatsappBase.WaitLogin(waApi.GetClient())
-		if err != nil {
-			return waApi, errors.Wrap(err, " ")
-		}
-		log.Infof("phone1 %s,login success", phone)
 		return waApi, nil
 	}
 	newClient, err := whatsappBase.NewWaClientWithDevice(phone)
-	err = whatsappBase.WaitLogin(newClient.WaCli)
 	if err != nil {
 		return waApi, errors.Wrap(err, " ")
 	}
-	log.Infof("phone2 %s,login success", phone)
 	waApi = whatsappApi.NewFactory(newClient.WaCli, newClient.Db)
 	w.cache[phone] = waApi
 	return waApi, nil
