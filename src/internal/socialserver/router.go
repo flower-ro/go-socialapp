@@ -7,6 +7,7 @@ import (
 	"go-socialapp/internal/pkg/code"
 	"go-socialapp/internal/pkg/middleware"
 	"go-socialapp/internal/socialserver/enter/controller/v1/account"
+	wagroup "go-socialapp/internal/socialserver/enter/controller/v1/group"
 	"go-socialapp/internal/socialserver/enter/ws"
 
 	// custom gin validators.
@@ -49,4 +50,11 @@ func routeGroup(group *gin.RouterGroup) {
 		accountRoute.GET("/list", middleware.DealHanlder(accountController.GetAllAccount))
 	}
 
+	groupRoute := group.Group("/group")
+
+	{
+		groupController := wagroup.NewGroupController()
+
+		groupRoute.POST("", middleware.DealHanlder(groupController.Create))
+	}
 }

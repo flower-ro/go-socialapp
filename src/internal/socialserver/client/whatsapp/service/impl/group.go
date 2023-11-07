@@ -2,10 +2,12 @@ package services
 
 import (
 	"context"
+	"github.com/davecgh/go-spew/spew"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
 	"go-socialapp/internal/socialserver/client/whatsapp/service/impl/validations"
 	"go.mau.fi/whatsmeow"
+	"go.mau.fi/whatsmeow/types"
 )
 
 type groupService struct {
@@ -57,7 +59,22 @@ func (service groupService) LeaveGroup(ctx context.Context, request model.LeaveG
 	return service.waCli.LeaveGroup(JID)
 }
 
-func (service groupService) CreateGroup() error {
-	//whatsmeow.ReqCreateGroup{}
+func (service groupService) CreateGroup(name string, members []string) error {
+	ps := make([]types.JID, 0, len(members))
+	for _, member := range members {
+		p := types.NewJID(member, "")
+		ps = append(ps, p)
+	}
+	req := whatsmeow.ReqCreateGroup{
+		Name:         name,
+		Participants: ps,
+	}
+	group, err := service.waCli.CreateGroup(req)
+	spew.Dump(group)
+	if err != nil {
+		return err
+	}
+
 	return nil
+
 }

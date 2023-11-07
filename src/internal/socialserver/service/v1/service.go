@@ -2,12 +2,14 @@ package v1
 
 import (
 	"go-socialapp/internal/socialserver/service/v1/account"
+	"go-socialapp/internal/socialserver/service/v1/group"
 	"go-socialapp/internal/socialserver/store"
 )
 
 // Service defines functions used to return resource interface.
 type Service interface {
 	Accounts() account.AccountSrv
+	Groups() group.GroupSrv
 }
 
 type service struct {
@@ -33,4 +35,8 @@ func GetService() Service {
 
 func (s *service) Accounts() account.AccountSrv {
 	return account.GetAccount(s.store)
+}
+
+func (s *service) Groups() group.GroupSrv {
+	return group.GetGroup(s.store)
 }
