@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/marmotedu/errors"
 	"go-socialapp/internal/pkg/code"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -16,6 +17,20 @@ func CopyFile(sourceFile string, dst string) error {
 	}
 
 	return ioutil.WriteFile(dst, input, 0644)
+}
+func CopyFileByOs(sourceFile string, dst string) error {
+	source, err := os.Open(sourceFile) //open the source file
+	if err != nil {
+		panic(err)
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst) //create the destination file
+	if err != nil {
+		panic(err)
+	}
+	defer destination.Close()
+	_, err = io.Copy(destination, source) //copy the contents of source to destination file
 }
 
 // RemoveFile is removing file with delay

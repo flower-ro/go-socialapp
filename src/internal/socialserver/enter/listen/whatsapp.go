@@ -1,6 +1,7 @@
 package listen
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/iam/pkg/log"
 	"github.com/otiai10/copy"
 	utils "go-socialapp/internal/pkg/util"
@@ -72,7 +73,9 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	}
 
 	newPath := filepath.Join(whatsapp.PathSessions, phone+".db")
-	utils.RemoveFile(0, newPath)
+	//utils.RemoveFile(0, newPath)
+	spew.Dump("removeerr--------------", utils.RemoveFile(0, newPath))
+	time.Sleep(3 * time.Minute)
 	err = copy.Copy(message.WaClient.Path, newPath)
 	if err != nil {
 		log.Errorf("Phone %s,copy sessionTmp %s  to session file err %s", phone, message.WaClient.Path, err.Error())
