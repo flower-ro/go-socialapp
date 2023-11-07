@@ -11,6 +11,7 @@ const DB = "DB"
 type TransactionHelper interface {
 	TxGenerate
 	GetTxDB(ctx context.Context) *gorm.DB
+	GetTxDBOr(ctx context.Context) *gorm.DB
 	GetDB() *gorm.DB
 	Close() error
 	GetTxGenerate() TxGenerate
@@ -45,6 +46,14 @@ func (t *transactionTool) GetTxDB(ctx context.Context) *gorm.DB {
 		return nil
 	}
 	return ctx.Value(DB).(*gorm.DB)
+}
+
+func (t *transactionTool) GetTxDBOr(ctx context.Context) *gorm.DB {
+	db := t.GetTxDB(ctx)
+	if db == nil {
+		db = t.GetDB()
+	}
+	return db
 }
 
 func (t *transactionTool) Close() error {

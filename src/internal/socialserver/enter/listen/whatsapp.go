@@ -1,17 +1,21 @@
 package listen
 
 import (
-	"context"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/iam/pkg/log"
+	"github.com/otiai10/copy"
+	"go-socialapp/internal/socialserver/cache/loggedin"
 	whatsappApi "go-socialapp/internal/socialserver/client/whatsapp"
-	"go-socialapp/internal/socialserver/client/whatsapp/model"
 	"go-socialapp/internal/socialserver/enter/ws"
 	srvv1 "go-socialapp/internal/socialserver/service/v1"
+	"path/filepath"
 	"strings"
 	"time"
 )
 import "go-socialapp/internal/pkg/third-party/whatsapp"
+
+const (
+	MessageTypeLoginFail = "LOGIN_FAIL"
+)
 
 var waListen *WaListen
 
@@ -51,8 +55,6 @@ func (w *WaListen) start() {
 }
 
 func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error {
-
-	factory := whatsappApi.NewFactory(message.WaClient.WaCli, message.WaClient.Db)
 	var phone string
 	if strings.Contains(message.Result.(string), ":") {
 		strs := strings.Split(message.Result.(string), ":")
@@ -61,27 +63,32 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		strs := strings.Split(message.Result.(string), "@")
 		phone = strs[0]
 	}
-	spew.Dump("---message---", message.Result)
-	spew.Dump("---phone---", phone)
-	response, err := factory.App().FirstDevice(context.Background())
-
-	log.Infof("FirstDevice err %v", err)
-	spew.Dump("---response---", response)
-
-	var inforesponse model.InfoResponse
-	var i int
-	for {
-		time.Sleep(10 * time.Second)
-		inforesponse, err = factory.User().Info(context.Background(), phone)
-		if err == nil || i > 3 {
-			break
-		}
-		i++
+	err := copy.Copy(message.WaClient.Path, filepath.Join(whatsapp.PathSessions, phone+".db"))
+	if err != nil {
+		log.Errorf("Phone %s,copy sessionTmp %s  to session file err %s", phone, message.WaClient.Path, err.Error())
+		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
+		return nil
 	}
 
-	log.Infof("Info err %v", err)
-	spew.Dump("---inforesponse---", inforesponse)
+	newClient, err := whatsapp.NewWaClientWithDevice(phone)
+	if err != nil {
+		log.Errorf("Phone %s,NewWaClientWithDevice %s err %s", phone, message.Result.(string), err.Error())
+		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
+		return nil
+	}
 
+	err = w.srv.Accounts().CreateOrUpdate(phone, message.Result.(string))
+	if err != nil {
+		log.Errorf("Phone %s,NewWaClientWithDevice err %s", phone, err.Error())
+		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
+		return nil
+	}
+
+	newClient.WaCli.Connect()
+	factory := whatsappApi.NewFactory(newClient.WaCli, newClient.Db)
+	loggedin.WaClientCache.Put(phone, factory)
+
+	message.WaClient.WaCli.Disconnect()
 	ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
 
 	return nil

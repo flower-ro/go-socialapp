@@ -12,6 +12,8 @@ type AccountSrv interface {
 	CreateBatch(ctx context.Context, accounts []v1.Account) error
 	//Login(phone string) (string, error)
 	Logout(phone string) error
+	CreateOrUpdate(phone string, device string) error
+	GetAllAccount(ctx context.Context) ([]v1.Account, error)
 }
 
 type accountService struct {
@@ -45,4 +47,25 @@ func (a *accountService) CreateBatch(ctx context.Context, accounts []v1.Account)
 
 func (a *accountService) Logout(phone string) error {
 	return nil
+}
+
+func (a *accountService) CreateOrUpdate(phone string, device string) error {
+	return a.StartTransaction(context.Background(), func(ctx context.Context) error {
+		//查询
+		account, err := a.store.Accounts().GetByPhone(ctx, phone)
+		if err != nil {
+			return errors.Wrap(err, "")
+		}
+		if account != nil {
+			return a.store.Accounts().UpdateDevice(ctx, phone, device)
+		}
+		return a.store.Accounts().Create(ctx, v1.Account{
+			PhoneNumber: phone,
+			Device:      device,
+		})
+	})
+}
+
+func (a *accountService) GetAllAccount(ctx context.Context) ([]v1.Account, error) {
+	return a.store.Accounts().GetAllAccount(ctx)
 }

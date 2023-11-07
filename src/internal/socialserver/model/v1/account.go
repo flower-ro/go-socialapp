@@ -11,10 +11,13 @@ type Account struct {
 	// Standard object's metadata.
 	metav1.ObjectMetaNotIncrement
 
-	AccountId int `gorm:"column:account_id" json:"accountId,omitempty"`
+	AccountId string `gorm:"column:account_id" json:"accountId,omitempty"`
 
 	// Required: true
-	AccountName uint64 `gorm:"column:account_name" json:"accountName,omitempty" `
+	AccountName string `gorm:"column:account_name" json:"accountName,omitempty" `
+
+	// Required: true
+	Device string `gorm:"column:device" json:"device,omitempty" `
 
 	// Required: true
 	PhoneNumber string `gorm:"column:phone_number" json:"phoneNumber,omitempty"`
@@ -24,8 +27,6 @@ type Account struct {
 
 	// Required: true
 	Status string `gorm:"column:status" json:"status,omitempty"`
-
-	Deleted bool `gorm:"column:deleted" json:"deleted,omitempty"`
 }
 
 // TableName maps to mysql table name.

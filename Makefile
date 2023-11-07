@@ -37,6 +37,7 @@ start-container:image
 start-com:
 	docker-compose up -d --build
 	docker-compose logs --tail=50
+#	docker-compose down
 
 restart:
 	$(current_dir)/build/restart-container.sh $(version)

@@ -24,7 +24,7 @@ require (
 	github.com/rookie-ninja/rk-boot v1.4.8
 	github.com/rookie-ninja/rk-boot/gf v0.0.15
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/sony/sonyflake v1.0.0
 	github.com/speps/go-hashids v2.0.0+incompatible
 	github.com/spf13/cobra v1.2.1
@@ -35,7 +35,7 @@ require (
 	github.com/valyala/fasthttp v1.50.0
 	github.com/zsais/go-gin-prometheus v0.1.0
 	go.mau.fi/whatsmeow v0.0.0-20231022190735-0c67ac8e0bdd
-	golang.org/x/sync v0.1.0
+	golang.org/x/sync v0.3.0
 	google.golang.org/protobuf v1.31.0
 	gorm.io/driver/mysql v1.3.1
 	gorm.io/driver/postgres v1.5.4
@@ -43,8 +43,10 @@ require (
 )
 
 require (
+	github.com/davecgh/go-spew v1.1.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/mattn/go-sqlite3 v1.14.17
+	github.com/otiai10/copy v1.14.0
 )
 
 require (
@@ -61,7 +63,6 @@ require (
 	github.com/clbanning/mxj/v2 v2.5.5 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dlclark/regexp2 v1.2.0 // indirect
