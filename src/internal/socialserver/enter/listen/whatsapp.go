@@ -1,8 +1,6 @@
 package listen
 
 import (
-	"context"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/iam/pkg/log"
 	"github.com/otiai10/copy"
 	"go-socialapp/internal/socialserver/cache/loggedin"
@@ -95,9 +93,6 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	factory := whatsappApi.NewFactory(message.WaClient.WaCli, newDb)
 	loggedin.WaClientCache.Put(phone, factory)
 	ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
-
-	spew.Dump("----sure---")
-	spew.Dump(factory.App().FetchDevices(context.Background()))
 	return nil
 
 }

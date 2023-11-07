@@ -86,7 +86,7 @@ func (w *WaClient) handler(rawEvt interface{}) {
 	case *events.StreamReplaced:
 		os.Exit(0)
 	case *events.Message:
-		spew.Dump("----11-----", evt)
+		//spew.Dump("----11-----", evt)
 		metaParts := []string{fmt.Sprintf("pushname: %s", evt.Info.PushName), fmt.Sprintf("timestamp: %s", evt.Info.Timestamp)}
 		if evt.Info.Type != "" {
 			metaParts = append(metaParts, fmt.Sprintf("type: %s", evt.Info.Type))

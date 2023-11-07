@@ -86,9 +86,10 @@ func (c *Client) Read() {
 						}
 					}()
 					//log.Infof("遍历获取到的 qrcode")
+					var i int
 					for evt := range ch {
 						//spew.Dump(evt)
-						if evt.Event == "code" {
+						if evt.Event == "code" && i == 0 {
 							replyMsg := Message{
 								Code:   "QRCODE",
 								Result: evt.Code,
@@ -98,6 +99,7 @@ func (c *Client) Read() {
 						} else {
 							log.Errorf("error when get qrCode ,%v", evt.Event)
 						}
+						i++
 					}
 					//log.Infof("遍历结束")
 				}()
