@@ -74,8 +74,10 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 
 	newPath := filepath.Join(whatsapp.PathSessions, phone+".db")
 	//utils.RemoveFile(0, newPath)
+	spew.Dump("login11--------------", message.WaClient.WaCli.IsLoggedIn())
 	spew.Dump("removeerr--------------", utils.RemoveFile(0, newPath))
 	time.Sleep(3 * time.Minute)
+	spew.Dump("login12--------------", message.WaClient.WaCli.IsLoggedIn())
 	err = copy.Copy(message.WaClient.Path, newPath)
 	if err != nil {
 		log.Errorf("Phone %s,copy sessionTmp %s  to session file err %s", phone, message.WaClient.Path, err.Error())

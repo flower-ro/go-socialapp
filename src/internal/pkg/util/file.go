@@ -31,6 +31,7 @@ func CopyFileByOs(sourceFile string, dst string) error {
 	}
 	defer destination.Close()
 	_, err = io.Copy(destination, source) //copy the contents of source to destination file
+	return err
 }
 
 // RemoveFile is removing file with delay
