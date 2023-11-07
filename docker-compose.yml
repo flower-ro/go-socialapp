@@ -1,0 +1,30 @@
+version: '3.9'
+services:
+  socialserver:
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    image: "rrs/socialserver:1.0.0"
+    volumes:
+      - /root/tg-test/wa/ss/tmp:/app/session/tmp
+      - /root/tg-test/wa/ss/login:/app/session/login
+      - /root/tg-test/wa/logs:/app/logs
+    environment:
+      - SOCIALSERVER_DB_HOST=10.0.3.10
+      - SOCIALSERVER_DB_PORT=5432
+      - SOCIALSERVER_DB_USERNAME=tgtask
+      - SOCIALSERVER_DB_PASSWORD=yuer@245
+      - SOCIALSERVER_DB_DATABASE=tgtask
+      - SOCIALSERVE_LOG_OUTPUT_PATHS=/app/logs/SOCIALSERVE.log,stdout
+      - SOCIALSERVER_INSECURE_BIND_ADDRESS=0.0.0.0
+      - SOCIALSERVER_SECURE_BIND_ADDRESS=0.0.0.0
+      - SOCIALSERVER_INSECURE_BIND_PORT=8808
+      - SOCIALSERVER_SECURE_BIND_PORT=8543
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    restart: 'always'
+    ports:
+      - "8808:8808"

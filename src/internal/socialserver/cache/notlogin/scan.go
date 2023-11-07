@@ -3,10 +3,11 @@ package notlogin
 import (
 	"github.com/marmotedu/iam/pkg/log"
 	utils "go-socialapp/internal/pkg/util"
+	"os"
 	"time"
 )
 
-var defaultInterval = 90 * time.Second
+var defaultInterval = 3 * time.Minute
 
 // 创建时间超过1分钟 就删除
 func (t tmpWaClientCache) scan() {
@@ -30,6 +31,11 @@ func (t *tmpWaClientCache) delExpire(expireTime time.Duration) time.Duration {
 		expectExpireTime := lastHead.Add(expireTime)
 		if now.After(expectExpireTime) || now.Equal(expectExpireTime) {
 			tmpClient.WaCli.Disconnect()
+			err := os.Remove(tmpClient.Path)
+			if err != nil {
+				log.Errorf("delete file path %s, err: %s", tmpClient.Path, err.Error())
+				continue
+			}
 			delete(t.tmpWaClients, fileName)
 		} else {
 			expectExpireTime = lastHead.Add(defaultInterval)

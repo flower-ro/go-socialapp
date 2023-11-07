@@ -34,6 +34,10 @@ start-container:image
 #	docker logs  socialserver-$(version)
 #   docker exec -it 6dfb762e67dc /bin/sh
 
+start-com:
+	docker-compose up -d --build
+	docker-compose logs --tail=50
+
 restart:
 	$(current_dir)/build/restart-container.sh $(version)
 

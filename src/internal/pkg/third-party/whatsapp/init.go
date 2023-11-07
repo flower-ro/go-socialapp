@@ -22,7 +22,7 @@ type WaClient struct {
 	WaCli      *whatsmeow.Client
 	Db         *sqlstore.Container
 	FileName   string
-	path       string
+	Path       string
 	tmp        bool
 	CreateTime time.Time
 	user       string // ws连接获取qrcode 时候需要传送user信息，以使得，登录成功信息只会发给该user
@@ -48,7 +48,7 @@ func NewClientWithNoDevice() (*WaClient, error) {
 	}
 	client := &WaClient{
 		FileName: randomName,
-		path:     filePath,
+		Path:     filePath,
 		tmp:      true,
 	}
 	err := client.initClient()
@@ -69,7 +69,7 @@ func NewWaClientWithDevice(waAccount string) (*WaClient, error) {
 	}
 	client := &WaClient{
 		FileName: waAccount,
-		path:     path,
+		Path:     path,
 		tmp:      false,
 	}
 	err = client.initClient()
@@ -95,7 +95,7 @@ func (w *WaClient) initClient() error {
 func (w *WaClient) initWaDB() error {
 	// Running Whatsapp
 	storeContainer, err := sqlstore.New("sqlite3",
-		fmt.Sprintf("file:%s?_foreign_keys=off", w.path), nil)
+		fmt.Sprintf("file:%s?_foreign_keys=off", w.Path), nil)
 	if err != nil {
 		return errors.WithCode(code.FailedConnectSqlite3, err.Error())
 	}
