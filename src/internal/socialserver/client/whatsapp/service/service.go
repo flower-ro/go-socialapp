@@ -21,6 +21,10 @@ func NewClient(waCli *whatsmeow.Client, db *sqlstore.Container) *waClient {
 	client.UpdateLastOperationTime()
 	return client
 }
+func (t *waClient) GetClient() *whatsmeow.Client {
+	return t.waCli
+}
+
 func (t *waClient) UpdateLastOperationTime() {
 	t.lastOperationTime = time.Now()
 }

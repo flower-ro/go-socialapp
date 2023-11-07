@@ -29,9 +29,9 @@ func newWaClient() *waClientCache {
 func (w *waClientCache) Put(phone string, factory whatsappClient.Factory) error {
 	w.lock.Lock()
 	defer w.lock.Unlock()
-	//if _, ok := w.cache[phone]; ok {
-	//	return errors.WithCode(code.WaClientExistedInCache, "")
-	//}
+	if old, ok := w.cache[phone]; ok {
+		old.GetClient().Disconnect()
+	}
 	w.cache[phone] = factory
 	return nil
 }

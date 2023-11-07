@@ -13,6 +13,7 @@ type Factory interface {
 	Send() service.ISendService
 	User() service.IUserService
 	UpdateLastOperationTime()
+	GetClient() *whatsmeow.Client
 }
 
 func NewFactory(waCli *whatsmeow.Client, db *sqlstore.Container) Factory {
