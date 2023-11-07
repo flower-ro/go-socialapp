@@ -94,13 +94,22 @@ func (w *WaClient) initClient() error {
 
 func (w *WaClient) initWaDB() error {
 	// Running Whatsapp
-	storeContainer, err := sqlstore.New("sqlite3",
-		fmt.Sprintf("file:%s?_foreign_keys=off", w.Path), nil)
+	storeContainer, err := NewWaDB(w.Path)
 	if err != nil {
-		return errors.WithCode(code.FailedConnectSqlite3, err.Error())
+		return err
 	}
 	w.Db = storeContainer
 	return nil
+}
+
+func NewWaDB(path string) (*sqlstore.Container, error) {
+	// Running Whatsapp
+	storeContainer, err := sqlstore.New("sqlite3",
+		fmt.Sprintf("file:%s?_foreign_keys=off", path), nil)
+	if err != nil {
+		return storeContainer, errors.WithCode(code.FailedConnectSqlite3, err.Error())
+	}
+	return storeContainer, nil
 }
 
 func (w *WaClient) initWaCLI() error {

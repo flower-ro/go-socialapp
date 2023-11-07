@@ -36,8 +36,9 @@ start-container:image
 
 start-com:
 	docker-compose up -d --build
-	docker-compose logs --tail=50
+	docker-compose logs -f --tail=50
 #	docker-compose down
+#	docker logs -f --tail=100 go-socialapp-socialserver-1
 
 restart:
 	$(current_dir)/build/restart-container.sh $(version)

@@ -1,6 +1,8 @@
 package listen
 
 import (
+	"context"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/iam/pkg/log"
 	"github.com/otiai10/copy"
 	"go-socialapp/internal/socialserver/cache/loggedin"
@@ -55,8 +57,13 @@ func (w *WaListen) start() {
 }
 
 func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error {
-	defer message.WaClient.WaCli.Disconnect()
 	var phone string
+	var err error
+	defer func() {
+		if err != nil {
+			message.WaClient.WaCli.Disconnect()
+		}
+	}()
 	if strings.Contains(message.Result.(string), ":") {
 		strs := strings.Split(message.Result.(string), ":")
 		phone = strs[0]
@@ -64,16 +71,17 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		strs := strings.Split(message.Result.(string), "@")
 		phone = strs[0]
 	}
-	err := copy.Copy(message.WaClient.Path, filepath.Join(whatsapp.PathSessions, phone+".db"))
+	newPath := filepath.Join(whatsapp.PathSessions, phone+".db")
+	err = copy.Copy(message.WaClient.Path, newPath)
 	if err != nil {
 		log.Errorf("Phone %s,copy sessionTmp %s  to session file err %s", phone, message.WaClient.Path, err.Error())
 		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
 		return nil
 	}
 
-	newClient, err := whatsapp.NewWaClientWithDevice(phone)
+	newDb, err := whatsapp.NewWaDB(newPath)
 	if err != nil {
-		log.Errorf("Phone %s,NewWaClientWithDevice %s err %s", phone, message.Result.(string), err.Error())
+		log.Errorf("Phone %s,NewWaDB %s err %s", phone, message.Result.(string), err.Error())
 		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
 		return nil
 	}
@@ -84,11 +92,12 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
 		return nil
 	}
-	newClient.WaCli.Connect()
-	factory := whatsappApi.NewFactory(newClient.WaCli, newClient.Db)
+	factory := whatsappApi.NewFactory(message.WaClient.WaCli, newDb)
 	loggedin.WaClientCache.Put(phone, factory)
 	ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
 
+	spew.Dump("----sure---")
+	spew.Dump(factory.App().FetchDevices(context.Background()))
 	return nil
 
 }
