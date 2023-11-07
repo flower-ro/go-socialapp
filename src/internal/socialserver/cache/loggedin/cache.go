@@ -6,6 +6,7 @@ import (
 	whatsappBase "go-socialapp/internal/pkg/third-party/whatsapp"
 	whatsappClient "go-socialapp/internal/socialserver/client/whatsapp"
 	"sync"
+	"time"
 )
 
 var WaClientCache *waClientCache
@@ -49,8 +50,21 @@ func (w *waClientCache) Get(phone string) (whatsappClient.Factory, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "")
 	}
-	err = newClient.WaCli.Connect()
-	spew.Dump("--111112--err=", err, newClient.WaCli.IsLoggedIn())
+	spew.Dump("-------------------1==err====", newClient.WaCli.Connect())
+	var i int
+	for {
+
+		if i > 3 {
+			break
+		}
+
+		time.Sleep(30 * time.Second)
+
+		spew.Dump("-------------------1==connted====", newClient.WaCli.IsConnected())
+		spew.Dump("-------------------1==IsLoggedIn====", newClient.WaCli.IsLoggedIn())
+		i++
+
+	}
 	client = whatsappClient.NewFactory(newClient.WaCli, newClient.Db)
 	w.cache[phone] = client
 	return client, nil
