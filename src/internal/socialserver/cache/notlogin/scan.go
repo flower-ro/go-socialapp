@@ -30,6 +30,12 @@ func (t *tmpWaClientCache) delExpire(expireTime time.Duration) time.Duration {
 		lastHead := tmpClient.CreateTime
 		expectExpireTime := lastHead.Add(expireTime)
 		if now.After(expectExpireTime) || now.Equal(expectExpireTime) {
+			_ = client.WaCli.Connect() // just connect to websocket
+			if client.WaCli.IsLoggedIn() {
+
+				log.Infof("find a loggedin client path is %s", tmpClient.Path)
+				continue
+			}
 			tmpClient.WaCli.Disconnect()
 			err := os.Remove(tmpClient.Path)
 			if err != nil {

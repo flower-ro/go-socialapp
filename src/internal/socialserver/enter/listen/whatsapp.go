@@ -62,7 +62,7 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	}
 	spew.Dump("---message---", message.Result)
 	spew.Dump("---phone---", phone)
-	response, err := factory.User().Info(context.Background(), phone)
+	response, err := factory.App().FirstDevice(context.Background())
 
 	log.Infof("登录成功 err %s", err.Error())
 	spew.Dump("---response---", response)
