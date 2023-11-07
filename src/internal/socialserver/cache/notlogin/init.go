@@ -3,7 +3,9 @@ package notlogin
 import (
 	"github.com/marmotedu/iam/pkg/log"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"sync"
 )
 
@@ -14,14 +16,17 @@ func InitTmpWaClientCache() {
 		tmpWaClients: make(map[string]*whatsapp.WaClient, 5),
 		lock:         &sync.RWMutex{},
 	}
-	// 删除指定的文件夹及其所有子文件夹和文件
-	err := os.RemoveAll(whatsapp.PathSessionsTmp)
+	files, err := ioutil.ReadDir(whatsapp.PathSessionsTmp)
 	if err != nil {
-		log.Fatalf("delete dir %s err %s", whatsapp.PathSessionsTmp, err.Error())
+		log.Fatalf("get files in dir %s err %s", whatsapp.PathSessionsTmp, err.Error())
 	}
-	err = os.Mkdir(whatsapp.PathSessionsTmp, 0755) // 创建 1 级目录
-	if err != nil {
-		log.Fatalf("create dir %s err %s", whatsapp.PathSessionsTmp, err.Error())
+
+	for _, file := range files {
+		path := filepath.Join(whatsapp.PathSessionsTmp, file.Name())
+		err = os.Remove(path)
+		if err != nil {
+			log.Fatalf("delete file %s err %s", path, err.Error())
+		}
 	}
 	go TmpWaClientCache.scan()
 }

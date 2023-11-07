@@ -5,6 +5,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/iam/pkg/log"
 	whatsappApi "go-socialapp/internal/socialserver/client/whatsapp"
+	"go-socialapp/internal/socialserver/client/whatsapp/model"
 	"go-socialapp/internal/socialserver/enter/ws"
 	srvv1 "go-socialapp/internal/socialserver/service/v1"
 	"strings"
@@ -64,8 +65,22 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	spew.Dump("---phone---", phone)
 	response, err := factory.App().FirstDevice(context.Background())
 
-	log.Infof("登录成功 err %s", err.Error())
+	log.Infof("FirstDevice err %s", err.Error())
 	spew.Dump("---response---", response)
+
+	var inforesponse model.InfoResponse
+	var i int
+	for {
+		time.Sleep(10 * time.Second)
+		inforesponse, err = factory.User().Info(context.Background(), phone)
+		if err == nil || i > 3 {
+			break
+		}
+		i++
+	}
+
+	log.Infof("Info err %s", err.Error())
+	spew.Dump("---inforesponse---", inforesponse)
 
 	ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
 
