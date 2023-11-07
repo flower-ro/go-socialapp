@@ -44,6 +44,23 @@ func (w *waClientCache) Get(phone string) (whatsappClient.Factory, error) {
 	client, ok := w.cache[phone]
 	if ok {
 		client.UpdateLastOperationTime()
+
+		spew.Dump("-------------------1==err====", client.GetClient().Connect())
+		var i int
+		for {
+
+			if i > 3 {
+				break
+			}
+
+			time.Sleep(30 * time.Second)
+
+			spew.Dump("-------------------1==connted====", client.GetClient().IsConnected())
+			spew.Dump("-------------------1==IsLoggedIn====", client.GetClient().IsLoggedIn())
+			i++
+
+		}
+
 		return client, nil
 	}
 	newClient, err := whatsappBase.NewWaClientWithDevice(phone)
