@@ -1,34 +1,32 @@
 package loggedin
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
 	whatsappBase "go-socialapp/internal/pkg/third-party/whatsapp"
-	whatsappClient "go-socialapp/internal/socialserver/client/whatsapp"
+	whatsappApi "go-socialapp/internal/socialserver/client/whatsapp"
 	"sync"
-	"time"
 )
 
-var WaClientCache *waClientCache
+var WaApiCache *waApiCache
 
-type waClientCache struct {
-	cache map[string]whatsappClient.Factory
+type waApiCache struct {
+	cache map[string]whatsappApi.Factory
 	lock  *sync.RWMutex
 }
 
-func InitWaClientCache() {
-	WaClientCache = newWaClient()
+func InitWaApiCache() {
+	WaApiCache = newWaApi()
 	//WaClientCache.initSessionFiles(whatsappBase.PathSessions)
 }
 
-func newWaClient() *waClientCache {
-	return &waClientCache{
-		cache: make(map[string]whatsappClient.Factory, 10),
+func newWaApi() *waApiCache {
+	return &waApiCache{
+		cache: make(map[string]whatsappApi.Factory, 10),
 		lock:  &sync.RWMutex{},
 	}
 }
 
-func (w *waClientCache) Put(phone string, factory whatsappClient.Factory) error {
+func (w *waApiCache) Put(phone string, factory whatsappApi.Factory) error {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 	if old, ok := w.cache[phone]; ok {
@@ -38,53 +36,28 @@ func (w *waClientCache) Put(phone string, factory whatsappClient.Factory) error 
 	return nil
 }
 
-func (w *waClientCache) Get(phone string) (whatsappClient.Factory, error) {
+func (w *waApiCache) Get(phone string) (whatsappApi.Factory, error) {
 	w.lock.RLock()
 	defer w.lock.RUnlock()
-	client, ok := w.cache[phone]
+	waApi, ok := w.cache[phone]
 	if ok {
-		client.UpdateLastOperationTime()
+		waApi.UpdateLastOperationTime()
 
-		spew.Dump("-------------------1==err====", client.GetClient().Connect())
-		var i int
-		for {
-
-			if i > 3 {
-				break
-			}
-
-			time.Sleep(30 * time.Second)
-
-			spew.Dump("-------------------1==connted====", client.GetClient().IsConnected())
-			spew.Dump("-------------------1==IsLoggedIn====", client.GetClient().IsLoggedIn())
-			i++
-
+		err := whatsappBase.WaitLogin(waApi.GetClient())
+		if err != nil {
+			return waApi, errors.Wrap(err, " ")
 		}
 
-		return client, nil
+		return waApi, nil
 	}
 	newClient, err := whatsappBase.NewWaClientWithDevice(phone)
+	err = whatsappBase.WaitLogin(newClient.WaCli)
 	if err != nil {
-		return nil, errors.Wrap(err, "")
+		return waApi, errors.Wrap(err, " ")
 	}
-	spew.Dump("-------------------1==err====", newClient.WaCli.Connect())
-	var i int
-	for {
-
-		if i > 3 {
-			break
-		}
-
-		time.Sleep(30 * time.Second)
-
-		spew.Dump("-------------------1==connted====", newClient.WaCli.IsConnected())
-		spew.Dump("-------------------1==IsLoggedIn====", newClient.WaCli.IsLoggedIn())
-		i++
-
-	}
-	client = whatsappClient.NewFactory(newClient.WaCli, newClient.Db)
-	w.cache[phone] = client
-	return client, nil
+	waApi = whatsappApi.NewFactory(newClient.WaCli, newClient.Db)
+	w.cache[phone] = waApi
+	return waApi, nil
 }
 
 //

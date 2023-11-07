@@ -1,16 +1,8 @@
 package listen
 
 import (
-	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/iam/pkg/log"
-	"github.com/otiai10/copy"
-	utils "go-socialapp/internal/pkg/util"
-	"go-socialapp/internal/socialserver/cache/loggedin"
-	whatsappApi "go-socialapp/internal/socialserver/client/whatsapp"
-	"go-socialapp/internal/socialserver/enter/ws"
 	srvv1 "go-socialapp/internal/socialserver/service/v1"
-	"path/filepath"
-	"strings"
 	"time"
 )
 import "go-socialapp/internal/pkg/third-party/whatsapp"
@@ -54,55 +46,6 @@ func (w *WaListen) start() {
 			}
 		}
 	}
-}
-
-func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error {
-	var phone string
-	var err error
-	defer func() {
-		if err != nil {
-			message.WaClient.WaCli.Disconnect()
-		}
-	}()
-	if strings.Contains(message.Result.(string), ":") {
-		strs := strings.Split(message.Result.(string), ":")
-		phone = strs[0]
-	} else {
-		strs := strings.Split(message.Result.(string), "@")
-		phone = strs[0]
-	}
-
-	newPath := filepath.Join(whatsapp.PathSessions, phone+".db")
-	//utils.RemoveFile(0, newPath)
-	spew.Dump("login11--------------", message.WaClient.WaCli.IsLoggedIn())
-	spew.Dump("removeerr--------------", utils.RemoveFile(0, newPath))
-	time.Sleep(3 * time.Minute)
-	spew.Dump("login12--------------", message.WaClient.WaCli.IsLoggedIn())
-	err = copy.Copy(message.WaClient.Path, newPath)
-	if err != nil {
-		log.Errorf("Phone %s,copy sessionTmp %s  to session file err %s", phone, message.WaClient.Path, err.Error())
-		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
-		return nil
-	}
-
-	newDb, err := whatsapp.NewWaDB(newPath)
-	if err != nil {
-		log.Errorf("Phone %s,NewWaDB %s err %s", phone, message.Result.(string), err.Error())
-		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
-		return nil
-	}
-
-	err = w.srv.Accounts().CreateOrUpdate(phone, message.Result.(string))
-	if err != nil {
-		log.Errorf("Phone %s,NewWaClientWithDevice err %s", phone, err.Error())
-		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
-		return nil
-	}
-	factory := whatsappApi.NewFactory(message.WaClient.WaCli, newDb)
-	loggedin.WaClientCache.Put(phone, factory)
-	ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
-	return nil
-
 }
 
 func (w *WaListen) handlerLogoutMessage(message whatsapp.BroadcastMessage) error {

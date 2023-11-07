@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var defaultInterval = 3 * time.Minute
+var defaultInterval = 5 * time.Minute
 
 // 创建时间超过1分钟 就删除
 func (t tmpWaClientCache) scan() {
@@ -33,7 +33,7 @@ func (t *tmpWaClientCache) delExpire(expireTime time.Duration) time.Duration {
 			_ = client.WaCli.Connect() // just connect to websocket
 			if client.WaCli.IsLoggedIn() {
 				log.Infof("find a loggedin client path is %s", tmpClient.Path)
-				continue
+				//continue
 			}
 			tmpClient.WaCli.Disconnect()
 			err := os.Remove(tmpClient.Path)

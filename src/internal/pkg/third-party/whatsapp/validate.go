@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/marmotedu/errors"
 	"go-socialapp/internal/pkg/code"
+	utils "go-socialapp/internal/pkg/util"
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/types"
 	"strings"
+	"time"
 )
 
 func ValidateJidWithLogin(waCli *whatsmeow.Client, jid string) (types.JID, error) {
@@ -26,6 +28,35 @@ func MustLogin(waCli *whatsmeow.Client) error {
 	} else if !waCli.IsLoggedIn() {
 		return errors.WithCode(code.NotLoginServer, "you are not login to services server, please login")
 	}
+	return nil
+}
+
+func WaitLogin(waCli *whatsmeow.Client) error {
+	if waCli == nil {
+		return errors.WithCode(code.ClientNotInitialized, "Whatsapp client is not initialized")
+	}
+
+	if !waCli.IsConnected() {
+		waCli.Connect()
+	}
+	var now = utils.GetCurrentTime()
+	var defaultInterval = 5 * time.Minute
+	expectExpireTime := now.Add(defaultInterval)
+	for {
+		if now.After(expectExpireTime) || now.Equal(expectExpireTime) {
+			break
+		}
+
+		if waCli.IsLoggedIn() {
+			break
+		}
+		time.Sleep(10 * time.Second)
+	}
+
+	if !waCli.IsLoggedIn() {
+		return errors.New("login fail")
+	}
+
 	return nil
 }
 

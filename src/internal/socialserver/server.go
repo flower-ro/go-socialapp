@@ -56,7 +56,7 @@ func (s *socialServer) PrepareRun() preparedTaskServer {
 	s.initDB()
 	initRouter(s.genericAPIServer.Engine)
 	ws.InitWsClientManager()
-	loggedin.InitWaClientCache()
+	loggedin.InitWaApiCache()
 	notlogin.InitTmpWaClientCache()
 	listen.InitWaListen()
 

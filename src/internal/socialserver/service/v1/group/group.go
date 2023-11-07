@@ -33,7 +33,7 @@ func GetGroup(store store.Factory) *groupService {
 
 func (a *groupService) Create(ctx context.Context, req request.GroupCreateReq) error {
 
-	waClient, err := loggedin.WaClientCache.Get(req.Creator)
+	waClient, err := loggedin.WaApiCache.Get(req.Creator)
 	if err != nil {
 		return err
 	}
