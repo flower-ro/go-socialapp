@@ -3,6 +3,8 @@ package listen
 import (
 	"github.com/marmotedu/errors"
 	"github.com/marmotedu/iam/pkg/log"
+	utils "go-socialapp/internal/pkg/util"
+
 	//"github.com/otiai10/copy"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
 	//utils "go-socialapp/internal/pkg/util"
@@ -44,6 +46,10 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	//	return err
 	//}
 
+	err = utils.RemoveFile(0, newPath)
+	if err != nil {
+		return errors.Wrapf(err, "Phone %s,RemoveFile for device %s", phone, message.Result.(string))
+	}
 	newDb, err := whatsapp.NewWaDB(newPath)
 	if err != nil {
 		return errors.Wrapf(err, "Phone %s,NewWaDB for device %s", phone, message.Result.(string))
