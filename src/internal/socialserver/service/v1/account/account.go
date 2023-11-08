@@ -51,10 +51,7 @@ func (a *accountService) IsOnWhatsApp(ctx context.Context, owner string, phones 
 	}
 	var last = make([]string, 0, len(phones))
 	for _, member := range phones {
-		if !strings.HasPrefix(member, "86") {
-			correct := "86" + member
-			last = append(last, correct)
-		}
+		last = append(last, member)
 	}
 	spew.Dump("------last,", last)
 	err = whatsappBase.WaitLogin(waApi.GetClient())
