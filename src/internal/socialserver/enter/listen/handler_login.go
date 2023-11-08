@@ -52,10 +52,10 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	time.Sleep(1 * time.Minute)
 	newPath = filepath.Join(whatsapp.PathSessions, phone+".db")
 	_, err = os.Stat(newPath)
+	message.WaClient.WaCli.Disconnect()
 	if err == nil {
 		tmpFileName = filepath.Join(whatsapp.PathSessions, phone+"-"+idgenerate.GetUUID36("")+".db")
 		log.Infof("等待重命名")
-		message.WaClient.WaCli.Disconnect()
 		err = os.Rename(newPath, tmpFileName)
 		//err = utils.RemoveFile(0, newPath)
 		if err != nil {
