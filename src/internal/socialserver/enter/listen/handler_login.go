@@ -42,12 +42,13 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		strs := strings.Split(message.Result.(string), "@")
 		phone = strs[0]
 	}
-
+	log.Infof("等待新的登录")
 	err = whatsapp.WaitLogin(message.WaClient.WaCli)
 	if err != nil {
 		return errors.Wrap(err, " ")
 	}
-	time.Sleep(3 * time.Minute)
+	log.Infof("新的登录成功")
+	time.Sleep(60 * time.Second)
 	newPath = filepath.Join(whatsapp.PathSessions, phone+".db")
 	tmpFileName = filepath.Join(whatsapp.PathSessions, phone+"-"+idgenerate.GetUUID36("")+".db")
 	err = os.Rename(newPath, tmpFileName)
@@ -69,10 +70,12 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		return errors.Wrapf(err, "Phone %s,NewWaClientWithDevice err ", phone)
 	}
 	message.WaClient.WaCli.Disconnect()
+	log.Infof("--等待新新的登录")
 	err = whatsapp.WaitLogin(newClient.WaCli)
 	if err != nil {
 		return errors.Wrap(err, " new Client WaitLogin")
 	}
+	log.Infof("--新新的登录成功")
 	err = w.srv.Accounts().CreateOrUpdate(phone, message.Result.(string))
 	if err != nil {
 		return errors.Wrapf(err, "Phone %s,NewWaClientWithDevice", phone)
