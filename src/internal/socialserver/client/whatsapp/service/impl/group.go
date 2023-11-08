@@ -3,15 +3,19 @@ package services
 import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/marmotedu/errors"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
+	"go-socialapp/internal/pkg/util/idgenerate"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
 	"go-socialapp/internal/socialserver/client/whatsapp/service/impl/validations"
 	"go.mau.fi/whatsmeow"
+	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
 )
 
 type groupService struct {
 	waCli *whatsmeow.Client
+	db    *sqlstore.Container
 }
 
 //var groupSrv *groupService
@@ -24,9 +28,10 @@ type groupService struct {
 ////	return groupSrv
 ////}
 
-func NewGroupService(waCli *whatsmeow.Client) *groupService {
+func NewGroupService(waCli *whatsmeow.Client, db *sqlstore.Container) *groupService {
 	return &groupService{
 		waCli: waCli,
+		db:    db,
 	}
 }
 
@@ -60,6 +65,19 @@ func (service groupService) LeaveGroup(ctx context.Context, request model.LeaveG
 }
 
 func (service groupService) CreateGroup(name string, participants []types.JID) error {
+
+	device, err := service.db.GetFirstDevice()
+	if err != nil {
+		return errors.Wrap(err, "")
+	}
+	for _, j := range participants {
+		tmp := j
+		_, _, err = device.Contacts.PutPushName(tmp, idgenerate.GetUUID36(""))
+		if err != nil {
+			return errors.Wrap(err, "")
+		}
+
+	}
 	req := whatsmeow.ReqCreateGroup{
 		Name:         name,
 		Participants: participants,

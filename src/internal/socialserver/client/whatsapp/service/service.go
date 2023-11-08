@@ -34,7 +34,7 @@ func (t *waApi) App() IAppService {
 }
 
 func (t *waApi) Group() IGroupService {
-	return services.NewGroupService(t.waCli)
+	return services.NewGroupService(t.waCli, t.db)
 }
 
 func (t *waApi) Message() IMessageService {
