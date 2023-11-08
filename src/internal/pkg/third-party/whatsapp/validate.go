@@ -50,7 +50,7 @@ func WaitLogin(waCli *whatsmeow.Client) error {
 		if waCli.IsLoggedIn() {
 			break
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(5 * time.Second)
 	}
 
 	if !waCli.IsLoggedIn() {
