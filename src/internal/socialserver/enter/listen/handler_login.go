@@ -1,6 +1,8 @@
 package listen
 
 import (
+	"context"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
 	"github.com/marmotedu/iam/pkg/log"
 	"github.com/otiai10/copy"
@@ -40,25 +42,28 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	if err != nil {
 		log.Errorf("Phone %s,copy sessionTmp %s  to session file err %s", phone, message.WaClient.Path, err.Error())
 		ws2.Manager.BroadcastMsg(ws2.Message{Code: MessageTypeLoginFail})
-		return nil
+		return err
 	}
 
 	newDb, err := whatsapp.NewWaDB(newPath)
 	if err != nil {
 		log.Errorf("Phone %s,NewWaDB %s err %s", phone, message.Result.(string), err.Error())
 		ws2.Manager.BroadcastMsg(ws2.Message{Code: MessageTypeLoginFail})
-		return nil
+		return err
 	}
 
 	err = w.srv.Accounts().CreateOrUpdate(phone, message.Result.(string))
 	if err != nil {
 		log.Errorf("Phone %s,NewWaClientWithDevice err %s", phone, err.Error())
 		ws2.Manager.BroadcastMsg(ws2.Message{Code: MessageTypeLoginFail})
-		return nil
+		return err
 	}
 	factory := whatsappApi.NewFactory(message.WaClient.WaCli, newDb)
 	loggedin.WaApiCache.Put(phone, factory)
 	ws2.Manager.BroadcastMsg(ws2.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
+
+	spew.Dump("------------------vb--------")
+	spew.Dump(factory.User().MyListGroups(context.Background()))
 	return nil
 
 }
