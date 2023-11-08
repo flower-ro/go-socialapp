@@ -2,13 +2,13 @@ package group
 
 import (
 	"go-socialapp/internal/pkg/middleware"
-	"go-socialapp/internal/socialserver/model/v1/request"
+	"go-socialapp/internal/socialserver/model/network"
 )
 
 // Create add new account to the storage.
 func (u *GroupController) Create(wc *middleware.WrapperContext) {
 
-	var r request.GroupCreateReq
+	var r network.GroupCreateReq
 
 	if wc.ShouldBindJSON(&r) {
 		return

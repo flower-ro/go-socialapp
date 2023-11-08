@@ -44,8 +44,7 @@ func routeGroup(group *gin.RouterGroup) {
 	{
 		accountController := account.NewAccountController()
 
-		accountRoute.POST("", middleware.DealHanlder(accountController.Create))
-		//accountRoute.GET("/login", middleware.DealHanlder(accountController.Login))
+		accountRoute.POST("/:phone/phones/valid", middleware.DealHanlder(accountController.Check))
 		accountRoute.POST("/logout/:phone", middleware.DealHanlder(accountController.Logout)) // admin api
 		accountRoute.GET("/list", middleware.DealHanlder(accountController.GetAllAccount))
 	}

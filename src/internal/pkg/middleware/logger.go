@@ -100,7 +100,7 @@ func LoggerWithConfig(conf gin.LoggerConfig) gin.HandlerFunc {
 		path := c.Request.URL.Path
 		raw := c.Request.URL.RawQuery
 
-		// Process request
+		// Process network
 		c.Next()
 
 		// Log only when path is not being skipped

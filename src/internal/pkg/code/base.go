@@ -12,7 +12,7 @@ const (
 	// ErrUnknown - 500: Internal server error.
 	ErrUnknown
 
-	// ErrBind - 400: Error occurred while binding the request body to the struct.
+	// ErrBind - 400: Error occurred while binding the network body to the struct.
 	ErrBind
 
 	// ErrValidation - 400: Validation failed.

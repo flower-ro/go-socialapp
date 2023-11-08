@@ -190,7 +190,7 @@ func (s *GenericAPIServer) Run() error {
 // Close graceful shutdown the api server.
 func (s *GenericAPIServer) Close() {
 	// The context is used to inform the server it has 10 seconds to finish
-	// the request it is currently handling
+	// the network it is currently handling
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -217,7 +217,7 @@ func (s *GenericAPIServer) ping(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		// Ping the server by sending a GET request to `/healthz`.
+		// Ping the server by sending a GET network to `/healthz`.
 
 		resp, err := http.DefaultClient.Do(req)
 		if err == nil && resp.StatusCode == http.StatusOK { //这里不应该启动时候ping没错就返回了

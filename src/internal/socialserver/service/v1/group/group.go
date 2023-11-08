@@ -7,7 +7,7 @@ import (
 	"github.com/marmotedu/iam/pkg/log"
 	whatsappBase "go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/cache/loggedin"
-	"go-socialapp/internal/socialserver/model/v1/request"
+	"go-socialapp/internal/socialserver/model/network"
 	"go-socialapp/internal/socialserver/store"
 	"go-socialapp/internal/socialserver/ws"
 	transcationalDB "go-socialapp/pkg/db"
@@ -16,7 +16,7 @@ import (
 )
 
 type GroupSrv interface {
-	Create(ctx context.Context, req request.GroupCreateReq) error
+	Create(ctx context.Context, req network.GroupCreateReq) error
 }
 
 type groupService struct {
@@ -38,7 +38,7 @@ func GetGroup(store store.Factory) *groupService {
 	return groupSrv
 }
 
-func (a *groupService) Create(ctx context.Context, req request.GroupCreateReq) error {
+func (a *groupService) Create(ctx context.Context, req network.GroupCreateReq) error {
 
 	waApi, err := loggedin.WaApiCache.Get(req.Creator)
 	if err != nil {
@@ -60,7 +60,7 @@ func (a *groupService) Create(ctx context.Context, req request.GroupCreateReq) e
 		return errors.Wrap(err, "")
 	}
 	spew.Dump("------IsOnWhatsApp,", result)
-	if len(result) > 0 {
+	if len(result) <= 0 {
 		return nil
 	}
 	members := make([]types.JID, 0, len(result))

@@ -14,7 +14,7 @@ const (
 	XRequestIDKey = "X-Request-ID"
 )
 
-// RequestID is a middleware that injects a 'X-Request-ID' into the context and request/response header of each request.
+// RequestID is a middleware that injects a 'X-Request-ID' into the context and network/response header of each network.
 func RequestID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Check for incoming header, use it if exists

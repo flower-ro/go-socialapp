@@ -1,4 +1,4 @@
-package request
+package network
 
 type GroupCreateReq struct {
 	Name    string   ` json:"name,omitempty"`

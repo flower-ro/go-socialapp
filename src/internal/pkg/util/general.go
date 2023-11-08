@@ -34,7 +34,7 @@ type Metadata struct {
 }
 
 func GetMetaDataFromURL(url string) (meta Metadata) {
-	// Send an HTTP GET request to the website
+	// Send an HTTP GET network to the website
 	response, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
