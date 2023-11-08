@@ -1,6 +1,7 @@
 package listen
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
 	"github.com/marmotedu/iam/pkg/log"
 	"go-socialapp/internal/pkg/util/idgenerate"
@@ -48,28 +49,32 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		return errors.Wrap(err, " ")
 	}
 	log.Infof("新的登录成功")
-	time.Sleep(60 * time.Second)
+	time.Sleep(2 * time.Minute)
 	newPath = filepath.Join(whatsapp.PathSessions, phone+".db")
 	tmpFileName = filepath.Join(whatsapp.PathSessions, phone+"-"+idgenerate.GetUUID36("")+".db")
+	log.Infof("等待重命名")
+	message.WaClient.WaCli.Disconnect()
 	err = os.Rename(newPath, tmpFileName)
 	//err = utils.RemoveFile(0, newPath)
 	if err != nil {
 		return errors.Wrapf(err, "Phone %s,Rename file name is %s", phone, tmpFileName)
 	}
+	log.Infof("重命名成功，等待copy")
 	err = copy.Copy(message.WaClient.Path, newPath)
 	if err != nil {
 		return errors.Wrapf(err, "Phone %s,copy sessionTmp %s  to session file ", phone, message.WaClient.Path)
-
 	}
+	log.Infof("copy成功")
 	//newDb, err := whatsapp.NewWaDB(newPath)
 	//if err != nil {
 	//	return errors.Wrapf(err, "Phone %s,NewWaDB for device %s", phone, message.Result.(string))
 	//}
+	spew.Dump("旧的还连接在吗，，，", message.WaClient.WaCli.IsConnected())
 	newClient, err := whatsapp.NewWaClientWithDevice(phone)
 	if err != nil {
 		return errors.Wrapf(err, "Phone %s,NewWaClientWithDevice err ", phone)
 	}
-	message.WaClient.WaCli.Disconnect()
+
 	log.Infof("--等待新新的登录")
 	err = whatsapp.WaitLogin(newClient.WaCli)
 	if err != nil {
