@@ -62,7 +62,7 @@ func (service groupService) LeaveGroup(ctx context.Context, request model.LeaveG
 func (service groupService) CreateGroup(name string, members []string) error {
 	ps := make([]types.JID, 0, len(members))
 	for _, member := range members {
-		p := types.NewJID(member, D)
+		p := types.NewJID(member, "")
 		ps = append(ps, p)
 	}
 	req := whatsmeow.ReqCreateGroup{
