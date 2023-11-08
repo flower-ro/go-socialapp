@@ -38,7 +38,7 @@ func (w *WaListen) start() {
 			}
 			switch message.Code {
 			case whatsapp.MessageTypeLogin:
-				w.handlerLoginMessage(message)
+				go w.handlerLoginMessage(message)
 			case whatsapp.MessageTypeLogout:
 				w.handlerLogoutMessage(message)
 			default:
