@@ -43,15 +43,11 @@ func (a *groupService) Create(ctx context.Context, req network.GroupCreateReq) e
 	if len(req.Member) <= 0 {
 		return errors.New("members cannot be 0 when create group ")
 	}
-	var last = make([]string, 0, len(req.Member))
-	for _, member := range req.Member {
-		last = append(last, member)
-	}
 	err = whatsappBase.WaitLogin(waApi.GetClient())
 	if err != nil {
 		return errors.Wrap(err, "")
 	}
-	result, err := waApi.General().IsOnWhatsApp(last)
+	result, err := waApi.General().IsOnWhatsApp(req.Member)
 	if err != nil {
 		return errors.Wrap(err, "")
 	}

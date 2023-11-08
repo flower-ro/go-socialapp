@@ -9,7 +9,6 @@ import (
 	v1 "go-socialapp/internal/socialserver/model/v1"
 	"go-socialapp/internal/socialserver/store"
 	transcationalDB "go-socialapp/pkg/db"
-	"go.mau.fi/whatsmeow/types"
 	"strings"
 )
 
@@ -48,15 +47,11 @@ func (a *accountService) IsOnWhatsApp(ctx context.Context, owner string, phones 
 	if len(phones) <= 0 {
 		return nil, errors.New("members cannot be 0 when create group ")
 	}
-	var last = make([]string, 0, len(phones))
-	for _, member := range phones {
-		last = append(last, member)
-	}
 	err = whatsappBase.WaitLogin(waApi.GetClient())
 	if err != nil {
 		return nil, errors.Wrap(err, "")
 	}
-	result, err := waApi.General().IsOnWhatsApp(last)
+	result, err := waApi.General().IsOnWhatsApp(phones)
 	if err != nil {
 		return nil, errors.Wrap(err, "")
 	}
@@ -65,10 +60,8 @@ func (a *accountService) IsOnWhatsApp(ctx context.Context, owner string, phones 
 			Total: len(phones),
 		}, nil
 	}
-	members := make([]types.JID, 0, len(result))
 	validMembers := make([]string, 0, len(result))
 	for _, one := range result {
-		members = append(members, one.JID)
 		validMembers = append(validMembers, one.Query)
 	}
 	isIn := &network.IsOnWhatAppRes{
