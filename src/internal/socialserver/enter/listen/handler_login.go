@@ -51,15 +51,19 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	log.Infof("新的登录成功")
 	time.Sleep(1 * time.Minute)
 	newPath = filepath.Join(whatsapp.PathSessions, phone+".db")
-	tmpFileName = filepath.Join(whatsapp.PathSessions, phone+"-"+idgenerate.GetUUID36("")+".db")
-	log.Infof("等待重命名")
-	message.WaClient.WaCli.Disconnect()
-	err = os.Rename(newPath, tmpFileName)
-	//err = utils.RemoveFile(0, newPath)
-	if err != nil {
-		return errors.Wrapf(err, "Phone %s,Rename file name is %s", phone, tmpFileName)
+	_, err = os.Stat(newPath)
+	if err == nil {
+		tmpFileName = filepath.Join(whatsapp.PathSessions, phone+"-"+idgenerate.GetUUID36("")+".db")
+		log.Infof("等待重命名")
+		message.WaClient.WaCli.Disconnect()
+		err = os.Rename(newPath, tmpFileName)
+		//err = utils.RemoveFile(0, newPath)
+		if err != nil {
+			return errors.Wrapf(err, "Phone %s,Rename file name is %s", phone, tmpFileName)
+		}
+		log.Infof("重命名成功y")
 	}
-	log.Infof("重命名成功，等待copy")
+	log.Infof("等待copy")
 	err = copy.Copy(message.WaClient.Path, newPath)
 	if err != nil {
 		return errors.Wrapf(err, "Phone %s,copy sessionTmp %s  to session file ", phone, message.WaClient.Path)
