@@ -34,6 +34,7 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 			ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
 		} else if tmpFileName != "" {
 			os.Remove(tmpFileName)
+			ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
 		}
 	}()
 	if strings.Contains(message.Result.(string), ":") {
@@ -49,7 +50,7 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		return errors.Wrap(err, " ")
 	}
 	log.Infof("新的登录成功")
-	time.Sleep(1 * time.Minute)
+	time.Sleep(75 * time.Second)
 	newPath = filepath.Join(whatsapp.PathSessions, phone+".db")
 	_, err = os.Stat(newPath)
 	message.WaClient.WaCli.Disconnect()
@@ -87,11 +88,10 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	log.Infof("--新新的登录成功")
 	err = w.srv.Accounts().CreateOrUpdate(phone, message.Result.(string))
 	if err != nil {
-		return errors.Wrapf(err, "Phone %s,NewWaClientWithDevice", phone)
+		return errors.Wrapf(err, "Phone %s,CreateOrUpdate", phone)
 	}
 	factory := whatsappApi.NewFactory(newClient.WaCli, newClient.Db)
 	loggedin.WaApiCache.Put(phone, factory)
-	ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
 	return nil
 
 }

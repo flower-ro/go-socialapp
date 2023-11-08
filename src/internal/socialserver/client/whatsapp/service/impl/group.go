@@ -59,15 +59,10 @@ func (service groupService) LeaveGroup(ctx context.Context, request model.LeaveG
 	return service.waCli.LeaveGroup(JID)
 }
 
-func (service groupService) CreateGroup(name string, members []string) error {
-	ps := make([]types.JID, 0, len(members))
-	for _, member := range members {
-		p := types.NewJID(member, "")
-		ps = append(ps, p)
-	}
+func (service groupService) CreateGroup(name string, participants []types.JID) error {
 	req := whatsmeow.ReqCreateGroup{
 		Name:         name,
-		Participants: ps,
+		Participants: participants,
 	}
 	group, err := service.waCli.CreateGroup(req)
 	spew.Dump(group)

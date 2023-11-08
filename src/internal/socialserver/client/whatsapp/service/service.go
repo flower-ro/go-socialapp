@@ -7,44 +7,48 @@ import (
 	"time"
 )
 
-type waClient struct {
+type waApi struct {
 	lastOperationTime time.Time
 	waCli             *whatsmeow.Client
 	db                *sqlstore.Container
 }
 
-func NewClient(waCli *whatsmeow.Client, db *sqlstore.Container) *waClient {
-	client := &waClient{
+func NewWaApi(waCli *whatsmeow.Client, db *sqlstore.Container) *waApi {
+	api := &waApi{
 		waCli: waCli,
 		db:    db,
 	}
-	client.UpdateLastOperationTime()
-	return client
+	api.UpdateLastOperationTime()
+	return api
 }
-func (t *waClient) GetClient() *whatsmeow.Client {
+func (t *waApi) GetClient() *whatsmeow.Client {
 	return t.waCli
 }
 
-func (t *waClient) UpdateLastOperationTime() {
+func (t *waApi) UpdateLastOperationTime() {
 	t.lastOperationTime = time.Now()
 }
 
-func (t *waClient) App() IAppService {
+func (t *waApi) App() IAppService {
 	return services.NewAppService(t.waCli, t.db)
 }
 
-func (t *waClient) Group() IGroupService {
+func (t *waApi) Group() IGroupService {
 	return services.NewGroupService(t.waCli)
 }
 
-func (t *waClient) Message() IMessageService {
+func (t *waApi) Message() IMessageService {
 	return services.NewMessageService(t.waCli)
 }
 
-func (t *waClient) Send() ISendService {
+func (t *waApi) Send() ISendService {
 	return services.NewSendService(t.waCli, t.App())
 }
 
-func (t *waClient) User() IUserService {
+func (t *waApi) User() IUserService {
 	return services.NewUserService(t.waCli)
+}
+
+func (t *waApi) General() IGeneralService {
+	return services.NewGeneralService(t.waCli)
 }

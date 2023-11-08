@@ -12,10 +12,11 @@ type Factory interface {
 	Message() service.IMessageService
 	Send() service.ISendService
 	User() service.IUserService
+	General() service.IGeneralService
 	UpdateLastOperationTime()
 	GetClient() *whatsmeow.Client
 }
 
 func NewFactory(waCli *whatsmeow.Client, db *sqlstore.Container) Factory {
-	return service.NewClient(waCli, db)
+	return service.NewWaApi(waCli, db)
 }
