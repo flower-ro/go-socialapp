@@ -49,7 +49,7 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		return errors.Wrap(err, " ")
 	}
 	log.Infof("新的登录成功")
-	time.Sleep(2 * time.Minute)
+	time.Sleep(1 * time.Minute)
 	newPath = filepath.Join(whatsapp.PathSessions, phone+".db")
 	tmpFileName = filepath.Join(whatsapp.PathSessions, phone+"-"+idgenerate.GetUUID36("")+".db")
 	log.Infof("等待重命名")
