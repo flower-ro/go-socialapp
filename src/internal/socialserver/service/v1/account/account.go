@@ -2,7 +2,6 @@ package account
 
 import (
 	"context"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
 	whatsappBase "go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/cache/loggedin"
@@ -53,7 +52,6 @@ func (a *accountService) IsOnWhatsApp(ctx context.Context, owner string, phones 
 	for _, member := range phones {
 		last = append(last, member)
 	}
-	spew.Dump("------last,", last)
 	err = whatsappBase.WaitLogin(waApi.GetClient())
 	if err != nil {
 		return nil, errors.Wrap(err, "")
@@ -62,7 +60,6 @@ func (a *accountService) IsOnWhatsApp(ctx context.Context, owner string, phones 
 	if err != nil {
 		return nil, errors.Wrap(err, "")
 	}
-	spew.Dump("------IsOnWhatsApp,", result)
 	if len(result) <= 0 {
 		return &network.IsOnWhatAppRes{
 			Total: len(phones),
@@ -74,8 +71,6 @@ func (a *accountService) IsOnWhatsApp(ctx context.Context, owner string, phones 
 		members = append(members, one.JID)
 		validMembers = append(validMembers, one.Query)
 	}
-	spew.Dump("------members,", members)
-
 	isIn := &network.IsOnWhatAppRes{
 		Total:   len(phones),
 		Valid:   len(result),

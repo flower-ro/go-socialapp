@@ -50,7 +50,7 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		return errors.Wrap(err, " ")
 	}
 	log.Infof("新的登录成功")
-	time.Sleep(75 * time.Second)
+	time.Sleep(30 * time.Second)
 	newPath = filepath.Join(whatsapp.PathSessions, phone+".db")
 	_, err = os.Stat(newPath)
 	message.WaClient.WaCli.Disconnect()
