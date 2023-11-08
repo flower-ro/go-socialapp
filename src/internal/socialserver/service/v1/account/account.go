@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
+	whatsappBase "go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/cache/loggedin"
 	"go-socialapp/internal/socialserver/model/network"
 	v1 "go-socialapp/internal/socialserver/model/v1"
@@ -56,6 +57,10 @@ func (a *accountService) IsOnWhatsApp(ctx context.Context, owner string, phones 
 		}
 	}
 	spew.Dump("------last,", last)
+	err = whatsappBase.WaitLogin(waApi.GetClient())
+	if err != nil {
+		return nil, errors.Wrap(err, "")
+	}
 	result, err := waApi.General().IsOnWhatsApp(last)
 	if err != nil {
 		return nil, errors.Wrap(err, "")
