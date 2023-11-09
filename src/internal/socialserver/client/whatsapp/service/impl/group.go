@@ -72,12 +72,16 @@ func (service groupService) CreateGroup(name string, participants []types.JID) e
 	}
 	for _, j := range participants {
 		tmp := j
-		_, _, err = device.Contacts.PutPushName(tmp, idgenerate.GetUUID36(""))
+		result, _, err := device.Contacts.PutPushName(tmp, idgenerate.GetUUID36(""))
+		spew.Dump("---------result=", result)
 		if err != nil {
 			return errors.Wrap(err, "")
 		}
-
 	}
+	devices, err := device.Contacts.GetAllContacts()
+	spew.Dump("---------devices=", devices)
+	spew.Dump("---------err=", err)
+
 	req := whatsmeow.ReqCreateGroup{
 		Name:         name,
 		Participants: participants,
