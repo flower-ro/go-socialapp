@@ -84,7 +84,7 @@ func (service groupService) CreateGroup(name string, participants []types.JID) e
 	spew.Dump("---before------contacts=", contacts)
 	spew.Dump("---before------err=", err)
 
-	err = service.waClient.WaCli.FetchAppState(appstate.WAPatchCriticalUnblockLow, true, true)
+	err = service.waClient.WaCli.FetchAppState(appstate.WAPatchCriticalUnblockLow, false, false)
 
 	log.Errorf("-----FetchAppState err", err)
 	contacts, err = device.Contacts.GetAllContacts()
@@ -99,18 +99,18 @@ func (service groupService) CreateGroup(name string, participants []types.JID) e
 	if err != nil {
 		return errors.Wrap(err, "")
 	}
-	spew.Dump(group)
-	//param := map[types.JID]whatsmeow.ParticipantChange{}
-	//for _, p := range participants {
-	//	tmp := p
-	//	param[tmp] = whatsmeow.ParticipantChangeAdd
-	//
-	//}
-	//node, err := service.waClient.WaCli.UpdateGroupParticipants(group.JID, param)
-	//spew.Dump(node)
-	//if err != nil {
-	//	return errors.Wrap(err, "")
-	//}
+	spew.Dump("-------group--", group)
+	param := map[types.JID]whatsmeow.ParticipantChange{}
+	for _, p := range participants {
+		tmp := p
+		param[tmp] = whatsmeow.ParticipantChangeAdd
+
+	}
+	node, err := service.waClient.WaCli.UpdateGroupParticipants(group.JID, param)
+	spew.Dump("-------node--", node)
+	if err != nil {
+		return errors.Wrap(err, "")
+	}
 
 	return nil
 
