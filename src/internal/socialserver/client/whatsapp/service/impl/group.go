@@ -5,7 +5,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
-	"go-socialapp/internal/pkg/util/idgenerate"
+	utils "go-socialapp/internal/pkg/util"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
 	"go-socialapp/internal/socialserver/client/whatsapp/service/impl/validations"
 	"go.mau.fi/whatsmeow"
@@ -72,8 +72,7 @@ func (service groupService) CreateGroup(name string, participants []types.JID) e
 	}
 	for _, j := range participants {
 		tmp := j
-		result, _, err := device.Contacts.PutPushName(tmp, idgenerate.GetUUID36(""))
-		spew.Dump("---------result=", result)
+		err = device.Contacts.PutContactName(tmp, utils.GenerateRandomString(6), utils.GenerateRandomString(3))
 		if err != nil {
 			return errors.Wrap(err, "")
 		}

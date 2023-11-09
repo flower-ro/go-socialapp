@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -59,4 +60,14 @@ func GetMetaDataFromURL(url string) (meta Metadata) {
 	// Print the meta description
 	fmt.Println("Meta data:", meta)
 	return meta
+}
+
+func GenerateRandomString(length int) string {
+	letters := "abcdefghijklmnopqrstuvwxyz"
+	bytes := make([]byte, length)
+	rand.Read(bytes)
+	for i, b := range bytes {
+		bytes[i] = letters[b%byte(len(letters))]
+	}
+	return string(bytes)
 }
