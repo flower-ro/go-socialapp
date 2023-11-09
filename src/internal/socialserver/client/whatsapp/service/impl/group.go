@@ -72,7 +72,7 @@ func (service groupService) CreateGroup(name string, participants []types.JID) e
 	}
 	for _, j := range participants {
 		tmp := j
-		err = device.Contacts.PutContactName(tmp, utils.GenerateRandomString(6), utils.GenerateRandomString(3))
+		err = device.Contacts.PutContactName(tmp, "", utils.GenerateRandomString(4))
 		if err != nil {
 			return errors.Wrap(err, "")
 		}
