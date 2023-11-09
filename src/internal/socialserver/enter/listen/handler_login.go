@@ -32,8 +32,10 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 			}
 			message.WaClient.WaCli.Disconnect()
 			ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginFail})
-		} else if tmpFileName != "" {
-			os.Remove(tmpFileName)
+		} else {
+			if tmpFileName != "" {
+				os.Remove(tmpFileName)
+			}
 			ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogin, Result: message.Result})
 		}
 	}()
