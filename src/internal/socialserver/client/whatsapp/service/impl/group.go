@@ -4,10 +4,12 @@ import (
 	"context"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
+	"github.com/marmotedu/iam/pkg/log"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
 	"go-socialapp/internal/socialserver/client/whatsapp/service/impl/validations"
 	"go.mau.fi/whatsmeow"
+	"go.mau.fi/whatsmeow/appstate"
 	"go.mau.fi/whatsmeow/types"
 )
 
@@ -76,6 +78,18 @@ func (service groupService) CreateGroup(name string, participants []types.JID) e
 	//devices, err := device.Contacts.GetAllContacts()
 	//spew.Dump("---------devices=", devices)
 	//spew.Dump("---------err=", err)
+
+	device, err := service.waClient.Db.GetFirstDevice()
+	contacts, err := device.Contacts.GetAllContacts()
+	spew.Dump("---before------contacts=", contacts)
+	spew.Dump("---before------err=", err)
+
+	err = service.waClient.WaCli.FetchAppState(appstate.WAPatchCriticalUnblockLow, true, true)
+
+	log.Errorf("-----FetchAppState err", err)
+	contacts, err = device.Contacts.GetAllContacts()
+	spew.Dump("----after-----contacts=", contacts)
+	spew.Dump("-----after----err=", err)
 
 	req := whatsmeow.ReqCreateGroup{
 		Name:         name,
