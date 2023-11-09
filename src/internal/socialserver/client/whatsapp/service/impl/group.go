@@ -5,7 +5,6 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/marmotedu/errors"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
-	utils "go-socialapp/internal/pkg/util"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
 	"go-socialapp/internal/socialserver/client/whatsapp/service/impl/validations"
 	"go.mau.fi/whatsmeow"
@@ -66,29 +65,38 @@ func (service groupService) LeaveGroup(ctx context.Context, request model.LeaveG
 
 func (service groupService) CreateGroup(name string, participants []types.JID) error {
 
-	device, err := service.db.GetFirstDevice()
-	if err != nil {
-		return errors.Wrap(err, "")
-	}
-	for _, j := range participants {
-		tmp := j
-		err = device.Contacts.PutContactName(tmp, "", utils.GenerateRandomString(4))
-		if err != nil {
-			return errors.Wrap(err, "")
-		}
-	}
-	devices, err := device.Contacts.GetAllContacts()
-	spew.Dump("---------devices=", devices)
-	spew.Dump("---------err=", err)
+	//device, err := service.db.GetFirstDevice()
+	//if err != nil {
+	//	return errors.Wrap(err, "")
+	//}
+	//for _, j := range participants {
+	//	tmp := j
+	//	err = device.Contacts.PutContactName(tmp, "", utils.GenerateRandomString(4))
+	//	if err != nil {
+	//		return errors.Wrap(err, "")
+	//	}
+	//}
+	//devices, err := device.Contacts.GetAllContacts()
+	//spew.Dump("---------devices=", devices)
+	//spew.Dump("---------err=", err)
 
 	req := whatsmeow.ReqCreateGroup{
 		Name:         name,
 		Participants: participants,
 	}
 	group, err := service.waCli.CreateGroup(req)
-	spew.Dump(group)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "")
+	}
+	param := map[types.JID]whatsmeow.ParticipantChange{}
+	for _, p := range participants {
+		param[p] = whatsmeow.ParticipantChangeAdd
+
+	}
+	node, err := service.waCli.UpdateGroupParticipants(group.JID, param)
+	spew.Dump(node)
+	if err != nil {
+		return errors.Wrap(err, "")
 	}
 
 	return nil
