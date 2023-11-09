@@ -36,10 +36,13 @@ func (t *tmpWaClientCache) delExpire(expireTime time.Duration) time.Duration {
 				//continue
 			}
 			tmpClient.WaCli.Disconnect()
-			err := os.Remove(tmpClient.Path)
-			if err != nil {
-				log.Errorf("delete file path %s, err: %s", tmpClient.Path, err.Error())
-				continue
+			_, err := os.Stat(tmpClient.Path)
+			if err == nil {
+				err = os.Remove(tmpClient.Path)
+				if err != nil {
+					log.Errorf("delete file path %s, err: %s", tmpClient.Path, err.Error())
+					continue
+				}
 			}
 			delete(t.tmpWaClients, fileName)
 		} else {
