@@ -7,16 +7,13 @@ import (
 	"go-socialapp/internal/pkg/code"
 	"go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
-	"go.mau.fi/whatsmeow"
-	"go.mau.fi/whatsmeow/store/sqlstore"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 type serviceApp struct {
-	waCli *whatsmeow.Client
-	db    *sqlstore.Container
+	waClient *whatsapp.WaClient
 }
 
 //var appservice *serviceApp
@@ -29,10 +26,9 @@ type serviceApp struct {
 //	return appservice
 //}
 
-func NewAppService(waCli *whatsmeow.Client, db *sqlstore.Container) *serviceApp {
+func NewAppService(waClient *whatsapp.WaClient) *serviceApp {
 	return &serviceApp{
-		waCli: waCli,
-		db:    db,
+		waClient: waClient,
 	}
 }
 
@@ -151,21 +147,21 @@ func (service serviceApp) Logout(_ context.Context) (err error) {
 		}
 	}
 
-	err = service.waCli.Logout()
+	err = service.waClient.WaCli.Logout()
 	return
 }
 
 func (service serviceApp) Reconnect(_ context.Context) (err error) {
-	service.waCli.Disconnect()
-	return service.waCli.Connect()
+	service.waClient.WaCli.Disconnect()
+	return service.waClient.WaCli.Connect()
 }
 
 func (service serviceApp) FirstDevice(ctx context.Context) (response model.DevicesResponse, err error) {
-	if service.waCli == nil {
+	if service.waClient.WaCli == nil {
 		return response, errors.WithCode(code.ErrWaCLI, "")
 	}
 
-	devices, err := service.db.GetFirstDevice()
+	devices, err := service.waClient.Db.GetFirstDevice()
 	if err != nil {
 		return response, err
 	}
@@ -181,11 +177,11 @@ func (service serviceApp) FirstDevice(ctx context.Context) (response model.Devic
 }
 
 func (service serviceApp) FetchDevices(_ context.Context) (response []model.DevicesResponse, err error) {
-	if service.waCli == nil {
+	if service.waClient.WaCli == nil {
 		return response, errors.WithCode(code.ErrWaCLI, "")
 	}
 
-	devices, err := service.db.GetAllDevices()
+	devices, err := service.waClient.Db.GetAllDevices()
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,6 @@ package group
 import (
 	"context"
 	"github.com/marmotedu/errors"
-	whatsappBase "go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/cache/loggedin"
 	"go-socialapp/internal/socialserver/model/network"
 	"go-socialapp/internal/socialserver/store"
@@ -43,7 +42,7 @@ func (a *groupService) Create(ctx context.Context, req network.GroupCreateReq) e
 	if len(req.Member) <= 0 {
 		return errors.New("members cannot be 0 when create group ")
 	}
-	err = whatsappBase.WaitLogin(waApi.GetClient())
+	err = waApi.GetClient().WaitLogin()
 	if err != nil {
 		return errors.Wrap(err, "")
 	}

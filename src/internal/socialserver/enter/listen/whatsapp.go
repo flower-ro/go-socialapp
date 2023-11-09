@@ -3,12 +3,14 @@ package listen
 import (
 	"github.com/marmotedu/iam/pkg/log"
 	srvv1 "go-socialapp/internal/socialserver/service/v1"
+	"go-socialapp/internal/socialserver/ws"
 	"time"
 )
 import "go-socialapp/internal/pkg/third-party/whatsapp"
 
 const (
-	MessageTypeLoginFail = "LOGIN_FAIL"
+	MessageTypeLoginFail    = "LOGIN_FAIL"
+	MessageTypeLoginOutFail = "LOGOUT_FAIL"
 )
 
 var waListen *WaListen
@@ -48,7 +50,13 @@ func (w *WaListen) start() {
 	}
 }
 
-func (w *WaListen) handlerLogoutMessage(message whatsapp.BroadcastMessage) error {
-
-	return nil
+func (w *WaListen) handlerLogoutMessage(message whatsapp.BroadcastMessage) {
+	err := w.srv.Accounts().DelByPhone(message.Result.(string))
+	if err != nil {
+		log.Errorf("phone db delete err %s", err.Error())
+		ws.Manager.BroadcastMsg(ws.Message{Code: MessageTypeLoginOutFail, Message: message.Result.(string)})
+		return
+	}
+	ws.Manager.BroadcastMsg(ws.Message{Code: whatsapp.MessageTypeLogout, Message: message.Result.(string)})
+	return
 }

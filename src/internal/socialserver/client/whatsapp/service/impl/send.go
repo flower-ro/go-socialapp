@@ -21,7 +21,7 @@ import (
 )
 
 type serviceSend struct {
-	waCli      *whatsmeow.Client
+	waClient   *whatsapp.WaClient
 	appService *serviceApp
 }
 
@@ -40,9 +40,9 @@ type metadata struct {
 //	return sendSrv
 //}
 
-func NewSendService(waCli *whatsmeow.Client, appService interface{}) *serviceSend {
+func NewSendService(waClient *whatsapp.WaClient, appService interface{}) *serviceSend {
 	return &serviceSend{
-		waCli:      waCli,
+		waClient:   waClient,
 		appService: appService.(*serviceApp),
 	}
 }
@@ -52,7 +52,7 @@ func (service serviceSend) SendText(ctx context.Context, request model.MessageRe
 	if err != nil {
 		return response, err
 	}
-	dataWaRecipient, err := whatsapp.ValidateJidWithLogin(service.waCli, request.Phone)
+	dataWaRecipient, err := service.waClient.ValidateJidWithLogin(request.Phone)
 	if err != nil {
 		return response, err
 	}
@@ -85,7 +85,7 @@ func (service serviceSend) SendText(ctx context.Context, request model.MessageRe
 		}
 	}
 
-	ts, err := service.waCli.SendMessage(ctx, dataWaRecipient, msg)
+	ts, err := service.waClient.WaCli.SendMessage(ctx, dataWaRecipient, msg)
 	if err != nil {
 		return response, err
 	}
@@ -197,7 +197,7 @@ func (service serviceSend) SendFile(ctx context.Context, request model.FileReque
 	if err != nil {
 		return response, err
 	}
-	dataWaRecipient, err := whatsapp.ValidateJidWithLogin(service.waCli, request.Phone)
+	dataWaRecipient, err := service.waClient.ValidateJidWithLogin(request.Phone)
 	if err != nil {
 		return response, err
 	}
@@ -213,7 +213,7 @@ func (service serviceSend) SendFile(ctx context.Context, request model.FileReque
 	if err != nil {
 		return response, err
 	}
-	uploadedFile, err := service.waCli.Upload(context.Background(), dataWaFile, whatsmeow.MediaDocument)
+	uploadedFile, err := service.waClient.WaCli.Upload(context.Background(), dataWaFile, whatsmeow.MediaDocument)
 	if err != nil {
 		fmt.Printf("Failed to upload file: %v", err)
 		return response, err
@@ -231,7 +231,7 @@ func (service serviceSend) SendFile(ctx context.Context, request model.FileReque
 		DirectPath:    proto.String(uploadedFile.DirectPath),
 		Caption:       proto.String(request.Caption),
 	}}
-	ts, err := service.waCli.SendMessage(ctx, dataWaRecipient, msg)
+	ts, err := service.waClient.WaCli.SendMessage(ctx, dataWaRecipient, msg)
 	go func() {
 		errDelete := utils.RemoveFile(0, oriFilePath)
 		if errDelete != nil {
@@ -361,7 +361,7 @@ func (service serviceSend) SendContact(ctx context.Context, request model.Contac
 	if err != nil {
 		return response, err
 	}
-	dataWaRecipient, err := whatsapp.ValidateJidWithLogin(service.waCli, request.Phone)
+	dataWaRecipient, err := service.waClient.ValidateJidWithLogin(request.Phone)
 	if err != nil {
 		return response, err
 	}
@@ -372,7 +372,7 @@ func (service serviceSend) SendContact(ctx context.Context, request model.Contac
 		DisplayName: proto.String(request.ContactName),
 		Vcard:       proto.String(msgVCard),
 	}}
-	ts, err := service.waCli.SendMessage(ctx, dataWaRecipient, msg)
+	ts, err := service.waClient.WaCli.SendMessage(ctx, dataWaRecipient, msg)
 	if err != nil {
 		return response, err
 	}
@@ -387,7 +387,7 @@ func (service serviceSend) SendLink(ctx context.Context, request model.LinkReque
 	if err != nil {
 		return response, err
 	}
-	dataWaRecipient, err := whatsapp.ValidateJidWithLogin(service.waCli, request.Phone)
+	dataWaRecipient, err := service.waClient.ValidateJidWithLogin(request.Phone)
 	if err != nil {
 		return response, err
 	}
@@ -401,7 +401,7 @@ func (service serviceSend) SendLink(ctx context.Context, request model.LinkReque
 		MatchedText:  proto.String(request.Link),
 		Description:  proto.String(getMetaDataFromURL.Description),
 	}}
-	ts, err := service.waCli.SendMessage(ctx, dataWaRecipient, msg)
+	ts, err := service.waClient.WaCli.SendMessage(ctx, dataWaRecipient, msg)
 	if err != nil {
 		return response, err
 	}
@@ -416,7 +416,7 @@ func (service serviceSend) SendLocation(ctx context.Context, request model.Locat
 	if err != nil {
 		return response, err
 	}
-	dataWaRecipient, err := whatsapp.ValidateJidWithLogin(service.waCli, request.Phone)
+	dataWaRecipient, err := service.waClient.ValidateJidWithLogin(request.Phone)
 	if err != nil {
 		return response, err
 	}
@@ -430,7 +430,7 @@ func (service serviceSend) SendLocation(ctx context.Context, request model.Locat
 	}
 
 	// Send WhatsApp Message Proto
-	ts, err := service.waCli.SendMessage(ctx, dataWaRecipient, msg)
+	ts, err := service.waClient.WaCli.SendMessage(ctx, dataWaRecipient, msg)
 	if err != nil {
 		return response, err
 	}

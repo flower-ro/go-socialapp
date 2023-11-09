@@ -23,7 +23,6 @@ type WaClient struct {
 	Db         *sqlstore.Container
 	FileName   string
 	Path       string
-	tmp        bool
 	CreateTime time.Time
 	user       string // ws连接获取qrcode 时候需要传送user信息，以使得，登录成功信息只会发给该user
 }
@@ -49,7 +48,6 @@ func NewClientWithNoDevice() (*WaClient, error) {
 	client := &WaClient{
 		FileName: randomName,
 		Path:     filePath,
-		tmp:      true,
 	}
 	err := client.initClient()
 	if err != nil {
@@ -70,7 +68,6 @@ func NewWaClientWithDevice(waAccount string) (*WaClient, error) {
 	client := &WaClient{
 		FileName: waAccount,
 		Path:     path,
-		tmp:      false,
 	}
 	err = client.initClient()
 	if err != nil {

@@ -45,7 +45,7 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 		phone = strs[0]
 	}
 	log.Infof("等待新的登录")
-	err = whatsapp.WaitLogin(message.WaClient.WaCli)
+	err = message.WaClient.WaitLogin()
 	if err != nil {
 		return errors.Wrap(err, " ")
 	}
@@ -81,7 +81,7 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	}
 
 	log.Infof("--等待新新的登录")
-	err = whatsapp.WaitLogin(newClient.WaCli)
+	err = newClient.WaitLogin()
 	if err != nil {
 		return errors.Wrap(err, " new Client WaitLogin")
 	}
@@ -90,7 +90,7 @@ func (w *WaListen) handlerLoginMessage(message whatsapp.BroadcastMessage) error 
 	if err != nil {
 		return errors.Wrapf(err, "Phone %s,CreateOrUpdate", phone)
 	}
-	factory := whatsappApi.NewFactory(newClient.WaCli, newClient.Db)
+	factory := whatsappApi.NewFactory(newClient)
 	loggedin.WaApiCache.Put(phone, factory)
 	return nil
 

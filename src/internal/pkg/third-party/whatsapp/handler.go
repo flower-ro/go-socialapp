@@ -66,9 +66,9 @@ func (w *WaClient) handler(rawEvt interface{}) {
 		}
 	case *events.LoggedOut:
 		BroadcastCh <- BroadcastMessage{
-			Code:     MessageTypeLogout,
-			WaClient: w,
-			Result:   nil,
+			Code: MessageTypeLogout,
+			//	WaClient: w,
+			Result: w.FileName,
 		}
 	case *events.Connected, *events.PushNameSetting:
 		if len(w.WaCli.Store.PushName) == 0 {

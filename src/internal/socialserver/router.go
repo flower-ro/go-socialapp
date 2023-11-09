@@ -47,6 +47,7 @@ func routeGroup(group *gin.RouterGroup) {
 		accountRoute.POST("/:phone/phones/valid", middleware.DealHanlder(accountController.Check))
 		accountRoute.POST("/logout/:phone", middleware.DealHanlder(accountController.Logout)) // admin api
 		accountRoute.GET("/list", middleware.DealHanlder(accountController.GetAllAccount))
+		accountRoute.DELETE("/:phone", middleware.DealHanlder(accountController.DelByPhone))
 	}
 
 	groupRoute := group.Group("/group")

@@ -5,34 +5,33 @@ import (
 	"github.com/marmotedu/errors"
 	"go-socialapp/internal/pkg/code"
 	utils "go-socialapp/internal/pkg/util"
-	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/types"
 	"strings"
 	"time"
 )
 
-func ValidateJidWithLogin(waCli *whatsmeow.Client, jid string) (types.JID, error) {
-	err := MustLogin(waCli)
+func (w *WaClient) ValidateJidWithLogin(jid string) (types.JID, error) {
+	err := w.MustLogin()
 	if err != nil {
 		return types.JID{}, err
 	}
 	return ParseJID(jid)
 }
 
-func MustLogin(waCli *whatsmeow.Client) error {
-	if waCli == nil {
+func (w *WaClient) MustLogin() error {
+	if w.WaCli == nil {
 		return errors.WithCode(code.ClientNotInitialized, "Whatsapp client is not initialized")
 	}
-	if !waCli.IsConnected() {
+	if !w.WaCli.IsConnected() {
 		return errors.WithCode(code.NotConnectServer, "you are not connect to services server, please reconnect")
-	} else if !waCli.IsLoggedIn() {
+	} else if !w.WaCli.IsLoggedIn() {
 		return errors.WithCode(code.NotLoginServer, "you are not login to services server, please login")
 	}
 	return nil
 }
 
-func WaitLogin(waCli *whatsmeow.Client) error {
-	if waCli == nil {
+func (w *WaClient) WaitLogin() error {
+	if w.WaCli == nil {
 		return errors.WithCode(code.ClientNotInitialized, "Whatsapp client is not initialized")
 	}
 	var now = utils.GetCurrentTime()
@@ -43,17 +42,17 @@ func WaitLogin(waCli *whatsmeow.Client) error {
 		if now.After(expectExpireTime) || now.Equal(expectExpireTime) {
 			break
 		}
-		if !waCli.IsConnected() {
-			waCli.Connect()
+		if !w.WaCli.IsConnected() {
+			w.WaCli.Connect()
 		}
 
-		if waCli.IsLoggedIn() {
+		if w.WaCli.IsLoggedIn() {
 			break
 		}
 		time.Sleep(5 * time.Second)
 	}
 
-	if !waCli.IsLoggedIn() {
+	if !w.WaCli.IsLoggedIn() {
 		return errors.New("login fail")
 	}
 

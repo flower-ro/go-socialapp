@@ -30,7 +30,7 @@ func (w *waApiCache) Put(phone string, factory whatsappApi.Factory) error {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 	if old, ok := w.cache[phone]; ok {
-		old.GetClient().Disconnect()
+		old.GetClient().WaCli.Disconnect()
 	}
 	w.cache[phone] = factory
 	return nil
@@ -48,18 +48,23 @@ func (w *waApiCache) Get(phone string) (whatsappApi.Factory, error) {
 	if err != nil {
 		return waApi, errors.Wrap(err, " ")
 	}
-	waApi = whatsappApi.NewFactory(newClient.WaCli, newClient.Db)
+	waApi = whatsappApi.NewFactory(newClient)
 	w.cache[phone] = waApi
 	return waApi, nil
 }
 
-//
-//// 可以做优化，达到最大数量，或者闲置时间太长都可以 删除该缓存
-//func (w *waClientCache) Del(phone string) {
-//	w.lock.Lock()
-//	defer w.lock.Unlock()
-//	delete(w.cache, phone)
-//}
+// // 可以做优化，达到最大数量，或者闲置时间太长都可以 删除该缓存
+func (w *waApiCache) Del(phone string) {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+	waApi, ok := w.cache[phone]
+	if ok {
+		waApi.GetClient().WaCli.Disconnect()
+		delete(w.cache, phone)
+	}
+
+}
+
 //
 //func (w *waClientCache) Size() int {
 //	w.lock.RLock()

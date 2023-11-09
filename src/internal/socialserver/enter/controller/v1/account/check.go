@@ -9,7 +9,7 @@ import (
 
 // Create add new account to the storage.
 func (u *AccountController) Check(wc *middleware.WrapperContext) {
-	log.L(wc.Context()).Info("account create function called.")
+	log.L(wc.Context()).Info("phone check function called.")
 	phone := wc.Param("phone")
 	if phone == "" {
 		wc.ErrorsWithCode(code.ErrValidation, "phone can not be null")

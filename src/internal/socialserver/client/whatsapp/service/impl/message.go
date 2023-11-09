@@ -6,7 +6,6 @@ import (
 	"go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
 	"go-socialapp/internal/socialserver/client/whatsapp/service/impl/validations"
-	"go.mau.fi/whatsmeow"
 	waProto "go.mau.fi/whatsmeow/binary/proto"
 	"go.mau.fi/whatsmeow/types"
 	"google.golang.org/protobuf/proto"
@@ -14,7 +13,7 @@ import (
 )
 
 type serviceMessage struct {
-	waCli *whatsmeow.Client
+	waClient *whatsapp.WaClient
 }
 
 //var messageSrv *serviceMessage
@@ -27,9 +26,9 @@ type serviceMessage struct {
 //	return messageSrv
 //}
 
-func NewMessageService(waCli *whatsmeow.Client) *serviceMessage {
+func NewMessageService(waClient *whatsapp.WaClient) *serviceMessage {
 	return &serviceMessage{
-		waCli: waCli,
+		waClient: waClient,
 	}
 }
 
@@ -37,7 +36,7 @@ func (service serviceMessage) ReactMessage(ctx context.Context, request model.Re
 	if err = validations.ValidateReactMessage(ctx, request); err != nil {
 		return response, err
 	}
-	dataWaRecipient, err := whatsapp.ValidateJidWithLogin(service.waCli, request.Phone)
+	dataWaRecipient, err := service.waClient.ValidateJidWithLogin(request.Phone)
 	if err != nil {
 		return response, err
 	}
@@ -53,7 +52,7 @@ func (service serviceMessage) ReactMessage(ctx context.Context, request model.Re
 			SenderTimestampMs: proto.Int64(time.Now().UnixMilli()),
 		},
 	}
-	ts, err := service.waCli.SendMessage(ctx, dataWaRecipient, msg)
+	ts, err := service.waClient.WaCli.SendMessage(ctx, dataWaRecipient, msg)
 	if err != nil {
 		return response, err
 	}
@@ -67,12 +66,12 @@ func (service serviceMessage) RevokeMessage(ctx context.Context, request model.R
 	if err = validations.ValidateRevokeMessage(ctx, request); err != nil {
 		return response, err
 	}
-	dataWaRecipient, err := whatsapp.ValidateJidWithLogin(service.waCli, request.Phone)
+	dataWaRecipient, err := service.waClient.ValidateJidWithLogin(request.Phone)
 	if err != nil {
 		return response, err
 	}
 
-	ts, err := service.waCli.SendMessage(context.Background(), dataWaRecipient, service.waCli.BuildRevoke(dataWaRecipient, types.EmptyJID, request.MessageID))
+	ts, err := service.waClient.WaCli.SendMessage(context.Background(), dataWaRecipient, service.waClient.WaCli.BuildRevoke(dataWaRecipient, types.EmptyJID, request.MessageID))
 	if err != nil {
 		return response, err
 	}
@@ -87,13 +86,13 @@ func (service serviceMessage) UpdateMessage(ctx context.Context, request model.U
 		return response, err
 	}
 
-	dataWaRecipient, err := whatsapp.ValidateJidWithLogin(service.waCli, request.Phone)
+	dataWaRecipient, err := service.waClient.ValidateJidWithLogin(request.Phone)
 	if err != nil {
 		return response, err
 	}
 
 	msg := &waProto.Message{Conversation: proto.String(request.Message)}
-	ts, err := service.waCli.SendMessage(context.Background(), dataWaRecipient, service.waCli.BuildEdit(dataWaRecipient, request.MessageID, msg))
+	ts, err := service.waClient.WaCli.SendMessage(context.Background(), dataWaRecipient, service.waClient.WaCli.BuildEdit(dataWaRecipient, request.MessageID, msg))
 	if err != nil {
 		return response, err
 	}

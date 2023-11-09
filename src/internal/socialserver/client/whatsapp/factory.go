@@ -1,9 +1,8 @@
 package whatsapp
 
 import (
+	"go-socialapp/internal/pkg/third-party/whatsapp"
 	"go-socialapp/internal/socialserver/client/whatsapp/service"
-	"go.mau.fi/whatsmeow"
-	"go.mau.fi/whatsmeow/store/sqlstore"
 )
 
 type Factory interface {
@@ -14,9 +13,9 @@ type Factory interface {
 	User() service.IUserService
 	General() service.IGeneralService
 	UpdateLastOperationTime()
-	GetClient() *whatsmeow.Client
+	GetClient() *whatsapp.WaClient
 }
 
-func NewFactory(waCli *whatsmeow.Client, db *sqlstore.Container) Factory {
-	return service.NewWaApi(waCli, db)
+func NewFactory(waClient *whatsapp.WaClient) Factory {
+	return service.NewWaApi(waClient)
 }

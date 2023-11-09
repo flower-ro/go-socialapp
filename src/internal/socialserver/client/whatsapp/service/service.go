@@ -1,28 +1,25 @@
 package service
 
 import (
+	"go-socialapp/internal/pkg/third-party/whatsapp"
 	services "go-socialapp/internal/socialserver/client/whatsapp/service/impl"
-	"go.mau.fi/whatsmeow"
-	"go.mau.fi/whatsmeow/store/sqlstore"
 	"time"
 )
 
 type waApi struct {
 	lastOperationTime time.Time
-	waCli             *whatsmeow.Client
-	db                *sqlstore.Container
+	waClient          *whatsapp.WaClient
 }
 
-func NewWaApi(waCli *whatsmeow.Client, db *sqlstore.Container) *waApi {
+func NewWaApi(waClient *whatsapp.WaClient) *waApi {
 	api := &waApi{
-		waCli: waCli,
-		db:    db,
+		waClient: waClient,
 	}
 	api.UpdateLastOperationTime()
 	return api
 }
-func (t *waApi) GetClient() *whatsmeow.Client {
-	return t.waCli
+func (t *waApi) GetClient() *whatsapp.WaClient {
+	return t.waClient
 }
 
 func (t *waApi) UpdateLastOperationTime() {
@@ -30,25 +27,25 @@ func (t *waApi) UpdateLastOperationTime() {
 }
 
 func (t *waApi) App() IAppService {
-	return services.NewAppService(t.waCli, t.db)
+	return services.NewAppService(t.waClient)
 }
 
 func (t *waApi) Group() IGroupService {
-	return services.NewGroupService(t.waCli, t.db)
+	return services.NewGroupService(t.waClient)
 }
 
 func (t *waApi) Message() IMessageService {
-	return services.NewMessageService(t.waCli)
+	return services.NewMessageService(t.waClient)
 }
 
 func (t *waApi) Send() ISendService {
-	return services.NewSendService(t.waCli, t.App())
+	return services.NewSendService(t.waClient, t.App())
 }
 
 func (t *waApi) User() IUserService {
-	return services.NewUserService(t.waCli)
+	return services.NewUserService(t.waClient)
 }
 
 func (t *waApi) General() IGeneralService {
-	return services.NewGeneralService(t.waCli)
+	return services.NewGeneralService(t.waClient)
 }

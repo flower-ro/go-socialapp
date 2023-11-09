@@ -9,13 +9,11 @@ import (
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
 	"go-socialapp/internal/socialserver/client/whatsapp/service/impl/validations"
 	"go.mau.fi/whatsmeow"
-	"go.mau.fi/whatsmeow/store/sqlstore"
 	"go.mau.fi/whatsmeow/types"
 )
 
 type groupService struct {
-	waCli *whatsmeow.Client
-	db    *sqlstore.Container
+	waClient *whatsapp.WaClient
 }
 
 //var groupSrv *groupService
@@ -28,10 +26,9 @@ type groupService struct {
 ////	return groupSrv
 ////}
 
-func NewGroupService(waCli *whatsmeow.Client, db *sqlstore.Container) *groupService {
+func NewGroupService(waClient *whatsapp.WaClient) *groupService {
 	return &groupService{
-		waCli: waCli,
-		db:    db,
+		waClient: waClient,
 	}
 }
 
@@ -39,12 +36,12 @@ func (service groupService) JoinGroupWithLink(ctx context.Context, request model
 	if err = validations.ValidateJoinGroupWithLink(ctx, request); err != nil {
 		return groupID, err
 	}
-	err = whatsapp.MustLogin(service.waCli)
+	err = service.waClient.MustLogin()
 	if err != nil {
 		return "", err
 	}
 
-	jid, err := service.waCli.JoinGroupWithLink(request.Link)
+	jid, err := service.waClient.WaCli.JoinGroupWithLink(request.Link)
 	if err != nil {
 		return
 	}
@@ -56,17 +53,17 @@ func (service groupService) LeaveGroup(ctx context.Context, request model.LeaveG
 		return err
 	}
 
-	JID, err := whatsapp.ValidateJidWithLogin(service.waCli, request.GroupID)
+	JID, err := service.waClient.ValidateJidWithLogin(request.GroupID)
 	if err != nil {
 		return err
 	}
 
-	return service.waCli.LeaveGroup(JID)
+	return service.waClient.WaCli.LeaveGroup(JID)
 }
 
 func (service groupService) CreateGroup(name string, participants []types.JID) error {
 
-	device, err := service.db.GetFirstDevice()
+	device, err := service.waClient.Db.GetFirstDevice()
 	if err != nil {
 		return errors.Wrap(err, "")
 	}
@@ -85,7 +82,7 @@ func (service groupService) CreateGroup(name string, participants []types.JID) e
 		Name:         name,
 		Participants: participants,
 	}
-	group, err := service.waCli.CreateGroup(req)
+	group, err := service.waClient.WaCli.CreateGroup(req)
 	if err != nil {
 		return errors.Wrap(err, "")
 	}
@@ -95,7 +92,7 @@ func (service groupService) CreateGroup(name string, participants []types.JID) e
 		param[tmp] = whatsmeow.ParticipantChangeAdd
 
 	}
-	node, err := service.waCli.UpdateGroupParticipants(group.JID, param)
+	node, err := service.waClient.WaCli.UpdateGroupParticipants(group.JID, param)
 	spew.Dump(node)
 	if err != nil {
 		return errors.Wrap(err, "")

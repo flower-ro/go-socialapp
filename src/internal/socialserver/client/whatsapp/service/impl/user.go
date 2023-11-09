@@ -14,7 +14,7 @@ import (
 )
 
 type userService struct {
-	waCli *whatsmeow.Client
+	waClient *whatsapp.WaClient
 }
 
 //var userSrv *userService
@@ -27,9 +27,9 @@ type userService struct {
 //	return userSrv
 //}
 
-func NewUserService(waCli *whatsmeow.Client) *userService {
+func NewUserService(waClient *whatsapp.WaClient) *userService {
 	return &userService{
-		waCli: waCli,
+		waClient: waClient,
 	}
 }
 
@@ -43,13 +43,13 @@ func (service userService) Info(ctx context.Context, phone string) (response mod
 		return response, err
 	}
 	var jids []types.JID
-	dataWaRecipient, err := whatsapp.ValidateJidWithLogin(service.waCli, request.Phone)
+	dataWaRecipient, err := service.waClient.ValidateJidWithLogin(request.Phone)
 	if err != nil {
 		return response, err
 	}
 
 	jids = append(jids, dataWaRecipient)
-	resp, err := service.waCli.GetUserInfo(jids)
+	resp, err := service.waClient.WaCli.GetUserInfo(jids)
 	if err != nil {
 		return response, err
 	}
@@ -91,11 +91,11 @@ func (service userService) Avatar(ctx context.Context, request model.AvatarReque
 		if err != nil {
 			chanErr <- err
 		}
-		dataWaRecipient, err := whatsapp.ValidateJidWithLogin(service.waCli, request.Phone)
+		dataWaRecipient, err := service.waClient.ValidateJidWithLogin(request.Phone)
 		if err != nil {
 			chanErr <- err
 		}
-		pic, err := service.waCli.GetProfilePictureInfo(dataWaRecipient, &whatsmeow.GetProfilePictureParams{
+		pic, err := service.waClient.WaCli.GetProfilePictureInfo(dataWaRecipient, &whatsmeow.GetProfilePictureParams{
 			Preview:     request.IsPreview,
 			IsCommunity: request.IsCommunity,
 		})
@@ -128,9 +128,9 @@ func (service userService) Avatar(ctx context.Context, request model.AvatarReque
 }
 
 func (service userService) MyListGroups(_ context.Context) (response model.MyListGroupsResponse, err error) {
-	whatsapp.MustLogin(service.waCli)
+	service.waClient.MustLogin()
 
-	groups, err := service.waCli.GetJoinedGroups()
+	groups, err := service.waClient.WaCli.GetJoinedGroups()
 	if err != nil {
 		return
 	}
@@ -144,9 +144,9 @@ func (service userService) MyListGroups(_ context.Context) (response model.MyLis
 }
 
 func (service userService) MyPrivacySetting(_ context.Context) (response model.MyPrivacySettingResponse, err error) {
-	whatsapp.MustLogin(service.waCli)
+	service.waClient.MustLogin()
 
-	resp, err := service.waCli.TryFetchPrivacySettings(true)
+	resp, err := service.waClient.WaCli.TryFetchPrivacySettings(true)
 	if err != nil {
 		return
 	}

@@ -12,4 +12,5 @@ type AccountStore interface {
 	GetByPhone(ctx context.Context, phone string) (*v1.Account, error)
 	UpdateDevice(ctx context.Context, phone string, device string) error
 	Create(ctx context.Context, account v1.Account) error
+	DelByPhone(ctx context.Context, phone string) error
 }
