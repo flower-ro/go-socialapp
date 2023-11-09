@@ -19,7 +19,7 @@ func newAccountStore(db transcationalDB.TransactionHelper) *accountStore {
 }
 
 func (a *accountStore) CreateBatch(ctx context.Context, accounts []v1.Account) error {
-	err := a.GetTxDB(ctx).CreateInBatches(accounts, 100).Error
+	err := a.GetTxDBOr(ctx).CreateInBatches(accounts, 100).Error
 	if err != nil {
 		return errors.WithCode(code.ErrDatabase, err.Error())
 	}
@@ -27,7 +27,7 @@ func (a *accountStore) CreateBatch(ctx context.Context, accounts []v1.Account) e
 }
 
 func (a *accountStore) DelByPhone(ctx context.Context, phone string) error {
-	err := a.GetTxDB(ctx).Where("phone_number = ?", phone).Delete(v1.Account{}).Error
+	err := a.GetTxDBOr(ctx).Where("phone_number = ?", phone).Delete(v1.Account{}).Error
 	if err != nil {
 		return errors.WithCode(code.ErrDatabase, err.Error())
 	}
