@@ -9,8 +9,8 @@ import (
 	"go-socialapp/internal/socialserver/client/whatsapp/model"
 	"go-socialapp/internal/socialserver/client/whatsapp/service/impl/validations"
 	"go.mau.fi/whatsmeow"
-	"go.mau.fi/whatsmeow/appstate"
 	"go.mau.fi/whatsmeow/types"
+	"time"
 )
 
 type groupService struct {
@@ -63,53 +63,26 @@ func (service groupService) LeaveGroup(ctx context.Context, request model.LeaveG
 }
 
 func (service groupService) CreateGroup(name string, participants []types.JID) error {
-
-	//device, err := service.waClient.Db.GetFirstDevice()
-	//if err != nil {
-	//	return errors.Wrap(err, "")
-	//}
-	//for _, j := range participants {
-	//	tmp := j
-	//	err = device.Contacts.PutContactName(tmp, "", utils.GenerateRandomString(4))
-	//	if err != nil {
-	//		return errors.Wrap(err, "")
-	//	}
-	//}
-	//devices, err := device.Contacts.GetAllContacts()
-	//spew.Dump("---------devices=", devices)
-	//spew.Dump("---------err=", err)
-
-	device, err := service.waClient.Db.GetFirstDevice()
-	contacts, err := device.Contacts.GetAllContacts()
-	spew.Dump("---before------contacts=", contacts)
-	spew.Dump("---before------err=", err)
-
-	err = service.waClient.WaCli.FetchAppState(appstate.WAPatchCriticalUnblockLow, false, false)
-
-	log.Errorf("-----FetchAppState err", err)
-	contacts, err = device.Contacts.GetAllContacts()
-	spew.Dump("----after-----contacts=", contacts)
-	spew.Dump("-----after----err=", err)
-
 	req := whatsmeow.ReqCreateGroup{
-		Name:         name,
-		Participants: participants,
+		Name: name,
+		//		Participants: participants,
 	}
 	group, err := service.waClient.WaCli.CreateGroup(req)
 	if err != nil {
-		return errors.Wrap(err, "")
+		return errors.Wrap(err, "create group fail")
 	}
-	spew.Dump("-------group--", group)
-	param := map[types.JID]whatsmeow.ParticipantChange{}
 	for _, p := range participants {
 		tmp := p
-		param[tmp] = whatsmeow.ParticipantChangeAdd
-
-	}
-	node, err := service.waClient.WaCli.UpdateGroupParticipants(group.JID, param)
-	spew.Dump("-------node--", node)
-	if err != nil {
-		return errors.Wrap(err, "")
+		go func() {
+			param := map[types.JID]whatsmeow.ParticipantChange{}
+			param[tmp] = whatsmeow.ParticipantChangeAdd
+			node, err := service.waClient.WaCli.UpdateGroupParticipants(group.JID, param)
+			spew.Dump("-------node--", node)
+			if err != nil {
+				log.Errorf("add participant err %s", err.Error())
+			}
+		}()
+		time.Sleep(2 * time.Second)
 	}
 
 	return nil
