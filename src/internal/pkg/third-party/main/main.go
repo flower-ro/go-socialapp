@@ -200,7 +200,7 @@ func handleCmd(cmd string, args []string) {
 		//fmt.Println("------------Linking code:", linkingCode)
 		plog.Infof("-------sss-----Linking code:%s", linkingCode)
 	case "islogin":
-		plog.Infof("------check-loginin:%s", cli.IsLoggedIn())
+		plog.Infof("------check-loginin:%v", cli.IsLoggedIn())
 	case "reconnect":
 		cli.Disconnect()
 		err := cli.Connect()
