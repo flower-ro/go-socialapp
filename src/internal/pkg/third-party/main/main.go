@@ -67,7 +67,7 @@ func main() {
 	dbLog := waLog.Stdout("Database", logLevel, true)
 
 	storeContainer, err := sqlstore.New("sqlite3",
-		fmt.Sprintf("file:%s?_foreign_keys=off", "/root/wa/go-socialapp/src/storages/whatsapp.db"), dbLog)
+		fmt.Sprintf("file:%s?_foreign_keys=off", "./lyzx6351m16y6l.db"), dbLog)
 	//storeContainer, err := sqlstore.New(*dbDialect, *dbAddress, dbLog)
 	if err != nil {
 		log.Errorf("Failed to connect to database: %v", err)
@@ -108,9 +108,7 @@ func main() {
 		go func() {
 			for evt := range ch {
 				if evt.Event == "code" {
-					plog.Infof("-------------------qrcpde ---s---")
 					qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
-					plog.Infof("-------------------qrcpde ---end---")
 				} else {
 					log.Infof("QR channel result: %s", evt.Event)
 				}
