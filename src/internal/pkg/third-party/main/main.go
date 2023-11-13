@@ -14,6 +14,10 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	plog "github.com/marmotedu/iam/pkg/log"
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/mdp/qrterminal/v3"
+	"google.golang.org/protobuf/proto"
 	"mime"
 	"net/http"
 	"os"
@@ -23,10 +27,6 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
-
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/mdp/qrterminal/v3"
-	"google.golang.org/protobuf/proto"
 
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/appstate"
@@ -84,6 +84,7 @@ func main() {
 	cli.PrePairCallback = func(jid types.JID, platform, businessName string) bool {
 		isWaitingForPair.Store(true)
 		defer isWaitingForPair.Store(false)
+		plog.Infof("-------------------Pairing %s (platform: %q, business name: %q). Type r within 3 seconds to reject pair", jid, platform, businessName)
 		log.Infof("Pairing %s (platform: %q, business name: %q). Type r within 3 seconds to reject pair", jid, platform, businessName)
 		select {
 		case reject := <-pairRejectChan:
@@ -107,7 +108,9 @@ func main() {
 		go func() {
 			for evt := range ch {
 				if evt.Event == "code" {
+					plog.Infof("-------------------qrcpde ---s---")
 					qrterminal.GenerateHalfBlock(evt.Code, qrterminal.L, os.Stdout)
+					plog.Infof("-------------------qrcpde ---end---")
 				} else {
 					log.Infof("QR channel result: %s", evt.Event)
 				}
@@ -193,7 +196,8 @@ func handleCmd(cmd string, args []string) {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("Linking code:", linkingCode)
+		fmt.Println("------------Linking code:", linkingCode)
+		plog.Infof("-------sss-----Linking code:%s", linkingCode)
 	case "reconnect":
 		cli.Disconnect()
 		err := cli.Connect()
