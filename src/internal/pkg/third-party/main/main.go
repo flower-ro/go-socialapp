@@ -67,7 +67,7 @@ func main() {
 	dbLog := waLog.Stdout("Database", logLevel, true)
 
 	storeContainer, err := sqlstore.New("sqlite3",
-		fmt.Sprintf("file:%s?_foreign_keys=off", "./lyzx6351m16y6l.db"), dbLog)
+		fmt.Sprintf("file:%s?_foreign_keys=off", "/root/wa/go-socialapp/src/storages/whatsapp.db"), dbLog)
 	//storeContainer, err := sqlstore.New(*dbDialect, *dbAddress, dbLog)
 	if err != nil {
 		log.Errorf("Failed to connect to database: %v", err)
