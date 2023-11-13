@@ -192,11 +192,12 @@ func handleCmd(cmd string, args []string) {
 			log.Errorf("Usage: pair-phone <number>")
 			return
 		}
+		plog.Infof("-------sss-----args[0]:%s", args[0])
 		linkingCode, err := cli.PairPhone(args[0], true, whatsmeow.PairClientChrome, "Chrome (Linux)")
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println("------------Linking code:", linkingCode)
+		//fmt.Println("------------Linking code:", linkingCode)
 		plog.Infof("-------sss-----Linking code:%s", linkingCode)
 	case "reconnect":
 		cli.Disconnect()
