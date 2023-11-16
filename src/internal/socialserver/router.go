@@ -6,6 +6,7 @@ import (
 	"github.com/marmotedu/errors"
 	"go-socialapp/internal/pkg/code"
 	"go-socialapp/internal/pkg/middleware"
+	watest "go-socialapp/internal/pkg/third-party/test/client"
 	"go-socialapp/internal/socialserver/enter/controller/v1/account"
 	wagroup "go-socialapp/internal/socialserver/enter/controller/v1/group"
 	"go-socialapp/internal/socialserver/ws"
@@ -56,5 +57,10 @@ func routeGroup(group *gin.RouterGroup) {
 		groupController := wagroup.NewGroupController()
 
 		groupRoute.POST("", middleware.DealHanlder(groupController.Create))
+	}
+
+	testRoute := group.Group("/test")
+	{
+		testRoute.GET("", middleware.DealHanlder(watest.Create))
 	}
 }
