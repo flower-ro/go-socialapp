@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"go.mau.fi/whatsmeow/store/sqlstore"
+	"go.mau.fi/whatsmeow/util/keys"
 	"io"
 	"testing"
 )
@@ -24,9 +25,10 @@ func computeAcceptKey(challengeKey string) string {
 }
 
 func decodeAcceptKey() {
-	_, err := base64.StdEncoding.DecodeString("+E0m0VxxaUY4DSRcVxLX1QeDGeO5NGxcOEPIW4NoGUY=")
+	de, err := base64.StdEncoding.DecodeString("U9wTSK1cN8+gqJ7Vgb9eLA4g6yrLYz74D/8ohMuwMlo=")
 	spew.Dump(err)
-
+	noisekey := keys.NewKeyPairFromPrivateKey(*(*[32]byte)(de))
+	spew.Dump(noisekey)
 }
 
 func generateChallengeKey() (string, error) {

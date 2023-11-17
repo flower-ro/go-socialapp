@@ -110,6 +110,7 @@ func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, 
 	de, err := base64.StdEncoding.DecodeString(priv)
 
 	spew.Dump("--err=", err)
+	spew.Dump("--priv=", priv)
 
 	noisekey := keys.NewKeyPairFromPrivateKey(*(*[32]byte)(de))
 
