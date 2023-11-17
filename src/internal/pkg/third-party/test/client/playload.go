@@ -42,10 +42,10 @@ type JID struct {
 	Server     string
 }
 */
-func getLoginPayload(user string) *waProto.ClientPayload {
+func getLoginPayload(user string, index int) *waProto.ClientPayload {
 	payload := proto.Clone(BaseClientPayload).(*waProto.ClientPayload)
 	payload.Username = proto.Uint64(UserInt(user))
-	payload.Device = proto.Uint32(uint32(0))
+	payload.Device = proto.Uint32(uint32(index))
 	payload.Passive = proto.Bool(true)
 	return payload
 }

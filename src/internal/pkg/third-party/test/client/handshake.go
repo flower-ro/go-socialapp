@@ -2,6 +2,7 @@ package watest
 
 import (
 	"bytes"
+	"encoding/base64"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"time"
@@ -14,7 +15,7 @@ import (
 )
 
 // doHandshake implements the Noise_XX_25519_AESGCM_SHA256 handshake for the WhatsApp web API.
-func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, user string) error {
+func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, user string, index int) error {
 	nh := socket.NewNoiseHandshake()
 	nh.Start(socket.NoiseStartPattern, fs.Header)
 	nh.Authenticate(ephemeralKP.Pub[:])
@@ -106,7 +107,11 @@ func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, 
 	//var noisePriv, identityPriv, preKeyPriv, preKeySig []byte
 	//keys.NewKeyPairFromPrivateKey(*(*[32]byte)(noisePriv))
 
-	noisekey := keys.NewKeyPairFromPrivateKey(*(*[32]byte)([]byte(priv)))
+	de, err := base64.StdEncoding.DecodeString(priv)
+
+	spew.Dump("--err=", err)
+
+	noisekey := keys.NewKeyPairFromPrivateKey(*(*[32]byte)(de))
 
 	encryptedPubkey := nh.Encrypt(noisekey.Pub[:])
 	err = nh.MixSharedSecretIntoKey(*noisekey.Priv, serverEphemeralArr)
@@ -114,7 +119,7 @@ func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, 
 		return fmt.Errorf("failed to mix noise private key in: %w", err)
 	}
 
-	clientFinishPayloadBytes, err := proto.Marshal(getLoginPayload(user))
+	clientFinishPayloadBytes, err := proto.Marshal(getLoginPayload(user, index))
 	if err != nil {
 		return fmt.Errorf("failed to marshal client finish payload: %w", err)
 	}

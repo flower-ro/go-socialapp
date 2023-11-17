@@ -2,14 +2,50 @@ package main
 
 import (
 	"crypto/md5"
+	"crypto/rand"
+	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"go.mau.fi/whatsmeow/store/sqlstore"
+	"io"
 	"testing"
 )
+
+var keyGUID = []byte("258EAFA5-E914-47DA-95CA-C5AB0DC85B11")
+
+func computeAcceptKey(challengeKey string) string {
+	h := sha1.New()
+	h.Write([]byte(challengeKey))
+	h.Write(keyGUID)
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
+func decodeAcceptKey() {
+	_, err := base64.StdEncoding.DecodeString("+E0m0VxxaUY4DSRcVxLX1QeDGeO5NGxcOEPIW4NoGUY=")
+	spew.Dump(err)
+
+}
+
+func generateChallengeKey() (string, error) {
+	p := make([]byte, 16)
+	if _, err := io.ReadFull(rand.Reader, p); err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(p), nil
+}
+
+func Test_decode(t *testing.T) {
+	decodeAcceptKey()
+
+}
+
+func Test_random(t *testing.T) {
+	tmp, _ := generateChallengeKey()
+	spew.Dump(tmp, computeAcceptKey(tmp))
+}
 
 func Test_Md5(t *testing.T) {
 

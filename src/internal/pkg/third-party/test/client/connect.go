@@ -14,7 +14,7 @@ var log waLog.Logger
 
 var logLevel = "INFO"
 
-func mainForTest(priv string, user string) {
+func mainForTest(priv string, user string, index int) {
 	logLevel = "DEBUG"
 	//store.DeviceProps.RequireFullSync = proto.Bool(true)
 	log = waLog.Stdout("Main", logLevel, true)
@@ -26,7 +26,7 @@ func mainForTest(priv string, user string) {
 		log.Errorf("Failed to Connect: %v", err)
 		fs.Close(0)
 		return
-	} else if err = doHandshake(fs, *keys.NewKeyPair(), priv, user); err != nil {
+	} else if err = doHandshake(fs, *keys.NewKeyPair(), priv, user, index); err != nil {
 		fs.Close(0)
 		log.Errorf("Failed to noise handshake: %v", err)
 	}

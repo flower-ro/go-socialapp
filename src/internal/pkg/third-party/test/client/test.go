@@ -1,8 +1,10 @@
 package watest
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"go-socialapp/internal/pkg/code"
 	"go-socialapp/internal/pkg/middleware"
+	"strconv"
 )
 
 // Create add new account to the storage.
@@ -20,5 +22,12 @@ func Create(wc *middleware.WrapperContext) {
 		return
 	}
 
-	mainForTest(priv, user)
+	index := wc.Query("index")
+	if index == "" {
+		wc.ErrorsWithCode(code.ErrValidation, "index can not be null")
+		return
+	}
+	tmp, _ := strconv.Atoi(index)
+	spew.Dump("index=", index)
+	mainForTest(priv, user, tmp)
 }
