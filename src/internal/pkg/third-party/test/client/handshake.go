@@ -83,6 +83,8 @@ func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, 
 	}
 	var certDetails waProto.NoiseCertificate_Details
 	err = proto.Unmarshal(certDetailsRaw, &certDetails)
+	spew.Dump("------certSignature=", certSignature)
+	spew.Dump("------cert=", certDetails)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal noise certificate details: %w", err)
 	} else if !bytes.Equal(certDetails.GetKey(), staticDecrypted) {
