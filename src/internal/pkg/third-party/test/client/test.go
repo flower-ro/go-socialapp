@@ -29,5 +29,5 @@ func Create(wc *middleware.WrapperContext) {
 	}
 	tmp, _ := strconv.Atoi(index)
 	spew.Dump("index=", index)
-	mainForTest(priv, user, tmp)
+	MainForTest(priv, user, tmp)
 }

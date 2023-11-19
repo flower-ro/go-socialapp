@@ -14,7 +14,7 @@ var log waLog.Logger
 
 var logLevel = "INFO"
 
-func mainForTest(priv string, user string, index int) {
+func MainForTest(priv string, user string, index int) {
 	logLevel = "DEBUG"
 	//store.DeviceProps.RequireFullSync = proto.Bool(true)
 	log = waLog.Stdout("Main", logLevel, true)
