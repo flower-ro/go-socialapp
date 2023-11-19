@@ -15,7 +15,7 @@ import (
 )
 
 // doHandshake implements the Noise_XX_25519_AESGCM_SHA256 handshake for the WhatsApp web API.
-func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, user string, index int) error {
+func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, user string, index int, idEncode string) error {
 	nh := socket.NewNoiseHandshake()
 	nh.Start(socket.NoiseStartPattern, fs.Header)
 	nh.Authenticate(ephemeralKP.Pub[:])
@@ -123,7 +123,7 @@ func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, 
 	}
 
 	clientFinishPayloadBytes, err := base64.StdEncoding.DecodeString(
-		"NjI4MzgzODY1MTA0MDQjhJvK3IDE5BOGOpzbIG0eylajImk=")
+		idEncode)
 	//clientFinishPayloadBytes, err := proto.Marshal(getLoginPayload(user, index))
 	if err != nil {
 		return fmt.Errorf("failed to marshal client finish payload: %w", err)

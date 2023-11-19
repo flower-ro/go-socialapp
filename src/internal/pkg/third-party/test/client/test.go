@@ -29,5 +29,11 @@ func Create(wc *middleware.WrapperContext) {
 	}
 	tmp, _ := strconv.Atoi(index)
 	spew.Dump("index=", index)
-	MainForTest(priv, user, tmp)
+
+	idEncode := wc.Query("idEncode")
+	if idEncode == "" {
+		wc.ErrorsWithCode(code.ErrValidation, "idEncode can not be null")
+		return
+	}
+	MainForTest(priv, user, tmp, idEncode)
 }
