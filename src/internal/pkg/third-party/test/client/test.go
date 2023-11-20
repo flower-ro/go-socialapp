@@ -22,6 +22,12 @@ func Create(wc *middleware.WrapperContext) {
 		return
 	}
 
+	pub := wc.Query("pub")
+	if pub == "" {
+		wc.ErrorsWithCode(code.ErrValidation, "pub can not be null")
+		return
+	}
+
 	index := wc.Query("index")
 	if index == "" {
 		wc.ErrorsWithCode(code.ErrValidation, "index can not be null")
@@ -35,5 +41,5 @@ func Create(wc *middleware.WrapperContext) {
 		wc.ErrorsWithCode(code.ErrValidation, "idEncode can not be null")
 		return
 	}
-	MainForTest(priv, user, tmp, idEncode)
+	MainForTest(priv, pub, user, tmp, idEncode)
 }

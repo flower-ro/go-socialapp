@@ -15,7 +15,7 @@ import (
 )
 
 // doHandshake implements the Noise_XX_25519_AESGCM_SHA256 handshake for the WhatsApp web API.
-func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, user string, index int, idEncode string) error {
+func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, pub string, user string, index int, idEncode string) error {
 	nh := socket.NewNoiseHandshake()
 	nh.Start(socket.NoiseStartPattern, fs.Header)
 	nh.Authenticate(ephemeralKP.Pub[:])
@@ -110,14 +110,19 @@ func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, 
 	//keys.NewKeyPairFromPrivateKey(*(*[32]byte)(noisePriv))
 
 	de, err := base64.StdEncoding.DecodeString(priv)
-
 	spew.Dump("--err=", err)
 	spew.Dump("--priv=", priv)
 
-	noisekey := keys.NewKeyPairFromPrivateKey(*(*[32]byte)(de))
+	pb, err := base64.StdEncoding.DecodeString(pub)
 
-	encryptedPubkey := nh.Encrypt(noisekey.Pub[:])
-	err = nh.MixSharedSecretIntoKey(*noisekey.Priv, serverEphemeralArr)
+	spew.Dump("--err=", err)
+	spew.Dump("--priv=", pb)
+
+	//noisekey := keys.NewKeyPairFromPrivateKey(*(*[32]byte)(de))
+
+	//encryptedPubkey := nh.Encrypt(noisekey.Pub[:])
+	encryptedPubkey := nh.Encrypt(pb)
+	err = nh.MixSharedSecretIntoKey(*(*[32]byte)(de), serverEphemeralArr)
 	if err != nil {
 		return fmt.Errorf("failed to mix noise private key in: %w", err)
 	}
