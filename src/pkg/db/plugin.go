@@ -1,8 +1,6 @@
 package db
 
 import (
-	v1 "github.com/marmotedu/api/apiserver/v1"
-	"github.com/marmotedu/errors"
 	"time"
 
 	"gorm.io/gorm"
@@ -71,45 +69,45 @@ func after(db *gorm.DB) {
 
 // GORM 的 AutoMigrate 方法，只对新增的字段或索引进行变更，理论上是没有风险的。
 // 就是模型增加了什么字段或者索引，就自动在表里面加了？
-func migrateDatabase(db *gorm.DB) error {
-	if err := db.AutoMigrate(&v1.User{}); err != nil {
-		return errors.Wrap(err, "migrate user model failed")
-	}
-	if err := db.AutoMigrate(&v1.Policy{}); err != nil {
-		return errors.Wrap(err, "migrate policy model failed")
-	}
-	if err := db.AutoMigrate(&v1.Secret{}); err != nil {
-		return errors.Wrap(err, "migrate secret model failed")
-	}
-
-	return nil
-}
+//func migrateDatabase(db *gorm.DB) error {
+//	if err := db.AutoMigrate(&v1.User{}); err != nil {
+//		return errors.Wrap(err, "migrate user model failed")
+//	}
+//	if err := db.AutoMigrate(&v1.Policy{}); err != nil {
+//		return errors.Wrap(err, "migrate policy model failed")
+//	}
+//	if err := db.AutoMigrate(&v1.Secret{}); err != nil {
+//		return errors.Wrap(err, "migrate secret model failed")
+//	}
+//
+//	return nil
+//}
 
 // resetDatabase resets the database tables.
 // nolint:unused,deadcode // may be reused in the feature, or just show a migrate usage.
-func resetDatabase(db *gorm.DB) error {
-	if err := cleanDatabase(db); err != nil {
-		return err
-	}
-	if err := migrateDatabase(db); err != nil {
-		return err
-	}
-
-	return nil
-}
+//func resetDatabase(db *gorm.DB) error {
+//	if err := cleanDatabase(db); err != nil {
+//		return err
+//	}
+//	if err := migrateDatabase(db); err != nil {
+//		return err
+//	}
+//
+//	return nil
+//}
 
 // cleanDatabase tear downs the database tables.
 // nolint:unused // may be reused in the feature, or just show a migrate usage.
-func cleanDatabase(db *gorm.DB) error {
-	if err := db.Migrator().DropTable(&v1.User{}); err != nil {
-		return errors.Wrap(err, "drop user table failed")
-	}
-	if err := db.Migrator().DropTable(&v1.Policy{}); err != nil {
-		return errors.Wrap(err, "drop policy table failed")
-	}
-	if err := db.Migrator().DropTable(&v1.Secret{}); err != nil {
-		return errors.Wrap(err, "drop secret table failed")
-	}
-
-	return nil
-}
+//func cleanDatabase(db *gorm.DB) error {
+//	if err := db.Migrator().DropTable(&v1.User{}); err != nil {
+//		return errors.Wrap(err, "drop user table failed")
+//	}
+//	if err := db.Migrator().DropTable(&v1.Policy{}); err != nil {
+//		return errors.Wrap(err, "drop policy table failed")
+//	}
+//	if err := db.Migrator().DropTable(&v1.Secret{}); err != nil {
+//		return errors.Wrap(err, "drop secret table failed")
+//	}
+//
+//	return nil
+//}
