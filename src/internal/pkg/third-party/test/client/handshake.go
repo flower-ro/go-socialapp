@@ -127,9 +127,9 @@ func doHandshake(fs *socket.FrameSocket, ephemeralKP keys.KeyPair, priv string, 
 		return fmt.Errorf("failed to mix noise private key in: %w", err)
 	}
 
-	clientFinishPayloadBytes, err := base64.StdEncoding.DecodeString(
-		idEncode)
-	//clientFinishPayloadBytes, err := proto.Marshal(getLoginPayload(user, index))
+	//clientFinishPayloadBytes, err := base64.StdEncoding.DecodeString(
+	//	idEncode)
+	clientFinishPayloadBytes, err := proto.Marshal(getLoginPayload(user, index))
 	if err != nil {
 		return fmt.Errorf("failed to marshal client finish payload: %w", err)
 	}
