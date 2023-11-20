@@ -14,7 +14,6 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/gostool/jsonconv v0.0.1
 	github.com/gosuri/uitable v0.0.4
-	//github.com/marmotedu/api v1.6.1
 	github.com/marmotedu/component-base v1.6.1
 	github.com/marmotedu/errors v1.0.2
 	github.com/marmotedu/iam v1.6.0
